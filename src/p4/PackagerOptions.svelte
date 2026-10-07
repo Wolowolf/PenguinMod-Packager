@@ -322,7 +322,6 @@
       'turbo',
       'framerate',
       'interpolation',
-      'highQualityPen',
       'maxClones',
       'fencing',
       'miscLimits',
@@ -361,13 +360,7 @@
       </label>
       <LearnMore slug="interpolation" />
     </div>
-    <div class="option">
-      <label>
-        <input type="checkbox" bind:checked={$options.highQualityPen}>
-        {$_('options.highQualityPen')}
-      </label>
-      <LearnMore slug="high-quality-pen" />
-    </div>
+    <!-- PenguinMod Desktop (Section 31): no High quality pen switch (always on: section 21). -->
     <div class="option">
       <label>
         <input type="checkbox" checked={$options.maxClones === ALMOST_INFINITY} on:change={(e) => {
