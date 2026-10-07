@@ -546,6 +546,9 @@ const isWindows = process.platform === 'win32';
 const isMac = process.platform === 'darwin';
 const isLinux = process.platform === 'linux';
 
+// Laptops with two graphics chips: draw the game with the strong one.
+app.commandLine.appendSwitch('force_high_performance_gpu');
+
 if (isMac) {
   Menu.setApplicationMenu(Menu.buildFromTemplate([
     { role: 'appMenu' },
