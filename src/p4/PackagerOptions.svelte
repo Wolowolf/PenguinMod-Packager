@@ -86,13 +86,12 @@
     $loadingScreenImage = $options.loadingScreen.image;
   };
 
-  const otherEnvironmentsInitiallyOpen = ![
-    'html',
-    'zip',
-    'electron-win32',
-    'webview-mac',
-    'electron-linux64'
-  ].includes($options.target);
+  // PenguinMod Desktop (Section 27): only these targets are offered. A project's remembered or
+  // imported options may name one of the removed ones; it becomes plain HTML.
+  const OFFERED_TARGETS = ['html', 'zip', 'zip-one-asset', 'electron-win64'];
+  $: if (!OFFERED_TARGETS.includes($options.target)) $options.target = 'html';
+
+  const otherEnvironmentsInitiallyOpen = $options.target === 'zip-one-asset';
 
   const advancedOptionsInitiallyOpen = (
     $options.compiler.enabled !== defaultOptions.compiler.enabled ||
@@ -847,18 +846,12 @@
       </label>
     </div>
 
+    <!-- PenguinMod Desktop (Section 27): Windows 64-bit (Electron) is the only application target;
+         the others needed downloads from TurboWarp's servers. -->
     <div class="group">
       <label class="option">
-        <input type="radio" name="environment" bind:group={$options.target} value="electron-win32">
-        {$_('options.application-win32').replace('{type}', 'Electron')}
-      </label>
-      <label class="option">
-        <input type="radio" name="environment" bind:group={$options.target} value="webview-mac">
-        {$_('options.application-mac').replace('{type}', 'WKWebView')}
-      </label>
-      <label class="option">
-        <input type="radio" name="environment" bind:group={$options.target} value="electron-linux64">
-        {$_('options.application-linux64').replace('{type}', 'Electron')}
+        <input type="radio" name="environment" bind:group={$options.target} value="electron-win64">
+        {$_('options.application-win64').replace('{type}', 'Electron')}
       </label>
     </div>
 
@@ -869,47 +862,6 @@
         <label class="option">
           <input type="radio" name="environment" bind:group={$options.target} value="zip-one-asset">
           {$_('options.zip-one-asset')}
-        </label>
-      </div>
-      <div class="group">
-        <label class="option">
-          <input type="radio" name="environment" bind:group={$options.target} value="electron-win64">
-          {$_('options.application-win64').replace('{type}', 'Electron')}
-        </label>
-        <label class="option">
-          <input type="radio" name="environment" bind:group={$options.target} value="electron-win-arm">
-          {$_('options.application-win-arm').replace('{type}', 'Electron')}
-        </label>
-        <label class="option">
-          <input type="radio" name="environment" bind:group={$options.target} value="electron-mac">
-          {$_('options.application-mac').replace('{type}', 'Electron')}
-        </label>
-        <label class="option">
-          <input type="radio" name="environment" bind:group={$options.target} value="electron-linux-arm32">
-          {$_('options.application-linux-arm32').replace('{type}', 'Electron')}
-        </label>
-        <label class="option">
-          <input type="radio" name="environment" bind:group={$options.target} value="electron-linux-arm64">
-          {$_('options.application-linux-arm64').replace('{type}', 'Electron')}
-        </label>  
-      </div>
-
-      <div class="group">
-        <label class="option">
-          <input type="radio" name="environment" bind:group={$options.target} value="nwjs-win32">
-          {$_('options.application-win32').replace('{type}', 'NW.js')}
-        </label>
-        <label class="option">
-          <input type="radio" name="environment" bind:group={$options.target} value="nwjs-win64">
-          {$_('options.application-win64').replace('{type}', 'NW.js')}
-        </label>
-        <label class="option">
-          <input type="radio" name="environment" bind:group={$options.target} value="nwjs-mac">
-          {$_('options.application-mac').replace('{type}', 'NW.js')}
-        </label>
-        <label class="option">
-          <input type="radio" name="environment" bind:group={$options.target} value="nwjs-linux-x64">
-          {$_('options.application-linux64').replace('{type}', 'NW.js')}
         </label>
       </div>
     </details>

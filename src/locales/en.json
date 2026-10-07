@@ -461,7 +461,7 @@
       "context": "type will become something like 'NW.js' or 'Electron'. Do not translate 'Windows'."
     },
     "application-win64": {
-      "string": "{type} Windows application (64-bit only, not recommended)",
+      "string": "{type} Windows application (64-bit)",
       "context": "type will become something like 'NW.js' or 'Electron'. Do not translate 'Windows'."
     },
     "application-win-arm": {
