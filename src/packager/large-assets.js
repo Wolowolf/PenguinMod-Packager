@@ -12,10 +12,11 @@
 
 // useBuildId is used for various cache related things. It shouldn't be changed.
 
+// PenguinMod Desktop (Section 28): the app serves these files itself, never TurboWarp's servers.
+// It only has the Windows 64-bit Electron zip (the one target that needs a download, section 27),
+// downloaded once from the app's own GitHub release (its app/packager-electron.json).
 const externalFile = (name) => [
-  // Hopefully one of these URLs will not be blocked.
-  `https://packagerdata.turbowarp.org/${name}`,
-  `https://blobs.turbowarp.xyz/${name}`
+  `https://studio.penguinmod.com/__packager-electron__/${name}`
 ];
 
 const relativeScaffolding = (name) => `scaffolding/${name}`;
