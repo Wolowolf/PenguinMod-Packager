@@ -48,9 +48,9 @@ export default {
     estimatedSize: 90856612
   },
   'electron-win64': {
-    src: externalFile('electron-v22.3.27-win32-x64.zip'),
-    sha256: '1a02c0f7af9664696f790dcce05948f0458a2f4f2d48c685f911d2eb99a4c9da',
-    estimatedSize: 96605498
+    src: externalFile('electron-v44.6.0-win32-x64.zip'),
+    sha256: '88ea15d65c4df8360270b8ac9b497d170fcc05b5517b483aa9bf471525703b1f',
+    estimatedSize: 161301139
   },
   'electron-win-arm': {
     src: externalFile('electron-v22.3.27-win32-arm64.zip'),
