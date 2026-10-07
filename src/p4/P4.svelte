@@ -13,12 +13,8 @@
   import {isSupported, isSafari, isStandalone, version} from './environment';
   import {
     APP_NAME,
-    FEEDBACK_PRIMARY,
-    FEEDBACK_SECONDARY,
     ACCENT_COLOR,
-    SOURCE_CODE,
     WEBSITE,
-    DONATE,
     PRIVACY_POLICY
   } from '../packager/brand';
 
@@ -154,22 +150,7 @@
           }}
         />
       </p>
-      <p>
-        <ComplexMessage
-          message={$_('p4.description3')}
-          values={{
-            // These placeholders are named this way for legacy reasons.
-            onScratch: {
-              text: $_('p4.description3-on').replace('{brand}', FEEDBACK_PRIMARY.name),
-              href: FEEDBACK_PRIMARY.link
-            },
-            onGitHub: {
-              text: $_('p4.description3-on').replace('{brand}', FEEDBACK_SECONDARY.name),
-              href: FEEDBACK_SECONDARY.link
-            }
-          }}
-        />
-      </p>
+      <!-- PenguinMod Desktop (Section 29): no "Report bugs ... on Discord or on GitHub" line. -->
       <p class="disclaimer">
         {$_('p4.disclaimer')}
       </p>
@@ -218,21 +199,9 @@
 
   <footer>
     <div>
+      <!-- PenguinMod Desktop (Section 29): no Feedback (Discord), Source code (GitHub) or Donate links. -->
       {#if PRIVACY_POLICY && !isStandalone}
         <a href={PRIVACY_POLICY}>{$_('p4.privacy')}</a>
-        <span> - </span>
-      {/if}
-      <a href={FEEDBACK_PRIMARY.link}>{$_('p4.feedback')}</a>
-      {#if SOURCE_CODE}
-        <span> - </span>
-        <a href={SOURCE_CODE}>{$_('p4.sourceCode')}</a>
-      {/if}
-      {#if DONATE}
-        <!-- Donation link needs to be wrapped in another element so we can hide it in the Mac App Store -->
-        <span class="donate-link">
-          <span> - </span>
-          <a href={DONATE}>{$_('p4.donate')}</a>
-        </span>
       {/if}
     </div>
     <div>

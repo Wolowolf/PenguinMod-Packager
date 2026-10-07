@@ -16,14 +16,8 @@ Also make sure to update the "License" section in README.md
 ACCENT_COLOR is a color used in various parts of the interface and as the default value for the accent
 color option. It should be a 6-character hex color (#123abc)
 
-SOURCE_CODE is where users can find the app's source code. This link is included in the website's footer.
-If this is set to an empty string, the link is removed.
-
-FEEDBACK_PRIMARY and FEEDBACK_SECONDARY are feedback/bug report links shown in various places throughout the website.
-name is how they will be labelled in the interface and link is of course a URL
-
-DONATE is a link that people can visit to donate.
-If this is set to an empty string, the link is removed.
+PenguinMod Desktop (Section 29): SOURCE_CODE (GitHub), FEEDBACK_PRIMARY / FEEDBACK_SECONDARY (Discord,
+GitHub issues) and DONATE are removed, and so are their links on the website.
 
 PRIVACY_POLICY is a link to the privacy policy.
 If this is set to an empty string, the link is removed.
@@ -46,15 +40,5 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.`,
   ACCENT_COLOR: '#00c3ff',
-  SOURCE_CODE: 'https://github.com/PenguinMod/PenguinMod-Packager',
-  FEEDBACK_PRIMARY: {
-    name: 'Discord',
-    link: 'https://discord.gg/NZ9MBMYTZh'
-  },
-  FEEDBACK_SECONDARY: {
-    name: 'GitHub',
-    link: 'https://github.com/PenguinMod/PenguinMod-Packager/issues'
-  },
-  DONATE: 'https://penguinmod.com/donate',
   PRIVACY_POLICY: 'https://turbowarp.org/privacy.html',
 };

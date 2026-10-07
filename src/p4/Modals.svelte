@@ -3,7 +3,6 @@
   import Button from './Button.svelte';
   import {CannotAccessProjectError, OutdatedPackagerError, UnknownNetworkError, UserError} from '../common/errors';
   import {error} from './stores';
-  import {FEEDBACK_PRIMARY} from '../packager/brand';
   import {_} from '../locales/';
   import ComplexMessage from './ComplexMessage.svelte';
 
@@ -126,7 +125,7 @@
         <p>{$_('p4.errorMessage').replace('{error}', $error)}</p>
         <p>
           <Button on:click={closeModal} text={$_('p4.close')} />
-          <a href={FEEDBACK_PRIMARY.link}>{$_('p4.reportBug')}</a>
+          <!-- PenguinMod Desktop (Section 29): no "Report bug" link (Discord). -->
         </p>
       {/if}
     </Section>
