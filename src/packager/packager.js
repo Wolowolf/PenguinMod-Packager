@@ -575,6 +575,8 @@ const createWindow = (windowOptions) => {
       sandbox: true,
       contextIsolation: true,
       nodeIntegration: false,
+      // Keep running at full speed when the window is covered or minimised.
+      backgroundThrottling: false,
     },
     show: true,
     width: 480,
