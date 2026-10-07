@@ -1,7 +1,5 @@
 import gamepad from './gamepad';
 import pointerlock from './pointerlock';
-import specialCloudBehaviors from './special-cloud-behaviors';
-import unsafeCloudBehaviors from './unsafe-cloud-behaviors';
 import pause from './pause';
 
 const run = (scaffolding, options) => {
@@ -12,8 +10,7 @@ const run = (scaffolding, options) => {
 
   if (options.gamepad) gamepad(api);
   if (options.pointerlock) pointerlock(api);
-  if (options.specialCloudBehaviors) specialCloudBehaviors(api);
-  if (options.unsafeCloudBehaviors) unsafeCloudBehaviors(api);
+  // PenguinMod Desktop (Section 30): no special / unsafe cloud behaviors (no cloud variables).
   if (options.pause) pause(api);
 };
 

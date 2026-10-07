@@ -262,8 +262,6 @@ class Packager extends EventTarget {
   getAddonOptions () {
     return {
       ...this.options.chunks,
-      specialCloudBehaviors: this.options.cloudVariables.specialCloudBehaviors,
-      unsafeCloudBehaviors: this.options.cloudVariables.unsafeCloudBehaviors,
       pause: this.options.controls.pause.enabled
     };
   }
@@ -840,39 +838,7 @@ cd "$(dirname "$0")"
     return zip;
   }
 
-  makeWebSocketProvider () {
-    // If using the default turbowarp.org server, we'll add a fallback for the turbowarp.xyz alias.
-    // This helps work around web filters as turbowarp.org can be blocked for games and turbowarp.xyz uses
-    // a problematic TLD. These are the same server and same variables, just different domain.
-    const cloudHost = this.options.cloudVariables.cloudHost === 'wss://clouddata.turbowarp.org' ? [
-      'wss://clouddata.turbowarp.org',
-      'wss://clouddata.turbowarp.xyz'
-    ] : this.options.cloudVariables.cloudHost;
-    return `new Scaffolding.Cloud.WebSocketProvider(${JSON.stringify(cloudHost)}, ${JSON.stringify(this.options.projectId)})`;
-  }
-
-  makeLocalStorageProvider () {
-    return `new Scaffolding.Cloud.LocalStorageProvider(${JSON.stringify(`cloudvariables:${this.options.projectId}`)})`;
-  }
-
-  makeCustomProvider () {
-    const variables = this.options.cloudVariables.custom;
-    let result = '{const providers = {};\n';
-    for (const provider of new Set(Object.values(variables))) {
-      if (provider === 'ws') {
-        result += `providers.ws = ${this.makeWebSocketProvider()};\n`;
-      } else if (provider === 'local') {
-        result += `providers.local = ${this.makeLocalStorageProvider()};\n`;
-      }
-    }
-    result += 'for (const provider of Object.values(providers)) scaffolding.addCloudProvider(provider);\n';
-    for (const variableName of Object.keys(variables)) {
-      const providerToUse = variables[variableName];
-      result += `scaffolding.addCloudProviderOverride(${JSON.stringify(variableName)}, providers[${JSON.stringify(providerToUse)}] || null);\n`;
-    }
-    result += '}';
-    return result;
-  }
+  // PenguinMod Desktop (Section 30): no cloud variable providers (cloud server, local storage).
 
   generateFilename (extension) {
     return `${this.options.app.windowTitle}.${extension}`;
@@ -1343,19 +1309,6 @@ cd "$(dirname "$0")"
       scaffolding.setUsername(${JSON.stringify(this.options.username)}.replace(/#/g, () => Math.floor(Math.random() * 10)));
       scaffolding.setAccentColor(${JSON.stringify(this.options.appearance.accent)});
 
-      try {
-        ${this.options.cloudVariables.mode === 'ws' ?
-          `scaffolding.addCloudProvider(${this.makeWebSocketProvider()})` :
-          this.options.cloudVariables.mode === 'local' ?
-          `scaffolding.addCloudProvider(${this.makeLocalStorageProvider()})` :
-          this.options.cloudVariables.mode === 'custom' ?
-          this.makeCustomProvider() :
-          ''
-        };
-      } catch (error) {
-        console.error(error);
-      }
-
       ${this.options.controls.greenFlag.enabled ? `
       const greenFlagButton = document.createElement('img');
       greenFlagButton.src = 'data:image/svg+xml,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16.63 17.5"><path d="M.75 2a6.44 6.44 0 017.69 0h0a6.44 6.44 0 007.69 0v10.4a6.44 6.44 0 01-7.69 0h0a6.44 6.44 0 00-7.69 0" fill="#007AF4" stroke="#003080" stroke-linecap="round" stroke-linejoin="round"/><path stroke-width="1.5" fill="#007AF4" stroke="#003080" stroke-linecap="round" stroke-linejoin="round" d="M.75 16.75v-16"/></svg>');
@@ -1620,8 +1573,7 @@ Packager.usesUnsafeOptions = (options) => {
   const defaultOptions = Packager.DEFAULT_OPTIONS();
   const getUnsafeOptions = (options) => [
     options.custom,
-    options.extensions,
-    options.cloudVariables.unsafeCloudBehaviors
+    options.extensions
   ];
   return JSON.stringify(getUnsafeOptions(defaultOptions)) !== JSON.stringify(getUnsafeOptions(options));
 };
@@ -1700,13 +1652,6 @@ Packager.DEFAULT_OPTIONS = () => ({
   chunks: {
     gamepad: false,
     pointerlock: false,
-  },
-  cloudVariables: {
-    mode: 'ws',
-    cloudHost: 'wss://clouddata.turbowarp.org',
-    custom: {},
-    specialCloudBehaviors: false,
-    unsafeCloudBehaviors: false,
   },
   cursor: {
     type: 'auto',

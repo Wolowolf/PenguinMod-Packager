@@ -29,15 +29,8 @@
   // JSON can't easily parse Infinity, so we'll just store large numbers instead
   const ALMOST_INFINITY = 9999999999;
 
-  const cloudVariables = projectData.project.analysis.stageVariables
-    .filter(i => i.isCloud)
-    .map(i => i.name);
-
   const defaultOptions = Packager.DEFAULT_OPTIONS();
   defaultOptions.projectId = projectData.projectId || `p4-${projectData.uniqueId}`;
-  for (const variable of cloudVariables) {
-    defaultOptions.cloudVariables.custom[variable] = 'ws';
-  }
   defaultOptions.app.packageName = Packager.getDefaultPackageNameFromFileName(projectData.title);
   defaultOptions.app.windowTitle = Packager.getWindowTitleFromFileName(projectData.title);
   defaultOptions.extensions = projectData.project.analysis.extensions;
@@ -414,11 +407,6 @@
       {$_('options.username')}
       <input type="text" class="shorter" bind:value={$options.username}>
     </label>
-    {#if $options.username !== defaultOptions.username && cloudVariables.length !== 0}
-      <p class="warning">
-        {$_('options.customUsernameWarning')}
-      </p>
-    {/if}
     <label class="option">
       <input type="checkbox" bind:checked={$options.closeWhenStopped}>
       {$_('options.closeWhenStopped')}
@@ -643,84 +631,8 @@
   </div>
 </Section>
 
-<Section
-  accent="#FF8C1A"
-  reset={cloudVariables.length === 0 ? null : () => {
-    resetOptions([
-      'cloudVariables'
-    ]);
-  }}
->
-  <div>
-    <h2>{$_('options.cloudVariables')}</h2>
-
-    {#if cloudVariables.length > 0}
-      <label class="option">
-        {$_('options.mode')}
-        <select bind:value={$options.cloudVariables.mode}>
-          <option value="ws">{$_('options.cloudVariables-ws')}</option>
-          <option value="local">{$_('options.cloudVariables-local')}</option>
-          <option value="">{$_('options.cloudVariables-ignore')}</option>
-          <option value="custom">{$_('options.cloudVariables-custom')}</option>
-        </select>
-      </label>
-
-      {#if $options.cloudVariables.mode === "custom"}
-        <div transition:fade|local>
-          {#each cloudVariables as variable}
-            <label class="option">
-              <select bind:value={$options.cloudVariables.custom[variable]}>
-                <option value="ws">{$_('options.cloudVariables-ws')}</option>
-                <option value="local">{$_('options.cloudVariables-local')}</option>
-                <option value="">{$_('options.cloudVariables-ignore')}</option>
-              </select>
-              {variable}
-            </label>
-          {/each}
-        </div>
-      {/if}
-
-      {#if $options.cloudVariables.mode === 'ws' || $options.cloudVariables.mode === 'custom'}
-        <div transition:fade|local>
-          <label class="option">
-            {$_('options.cloudVariablesHost')}
-            <!-- Examples of valid values: -->
-            <!-- wss://clouddata.turbowarp.org -->
-            <!-- ws:localhost:8080 -->
-            <input type="text" bind:value={$options.cloudVariables.cloudHost} pattern="wss?:.*">
-          </label>
-        </div>
-      {/if}
-
-      <p>{$_('options.cloudVariables-ws-help')}</p>
-      <p>{$_('options.cloudVariables-local-help')}</p>
-      <p>{$_('options.cloudVariables-ignore-help')}</p>
-      <p>{$_('options.cloudVariables-custom-help')}</p>
-
-      <div class="option">
-        <label>
-          <input type="checkbox" bind:checked={$options.cloudVariables.specialCloudBehaviors}>
-          {$_('options.specialCloudBehaviors')}
-        </label>
-        <LearnMore slug="packager/special-cloud-behaviors" />
-      </div>
-
-      <div class="option">
-        <label>
-          <input type="checkbox" bind:checked={$options.cloudVariables.unsafeCloudBehaviors}>
-          {$_('options.unsafeCloudBehaviors')}
-        </label>
-        <LearnMore slug="packager/special-cloud-behaviors#eval" />
-      </div>
-      {#if $options.cloudVariables.unsafeCloudBehaviors}
-        <p class="warning">{$_('options.unsafeCloudBehaviorsWarning')}</p>
-      {/if}
-      <p>{$_('options.implicitCloudHint').replace('{cloud}', '☁')}</p>
-    {:else}
-      <p>{$_('options.noCloudVariables')}</p>
-    {/if}
-  </div>
-</Section>
+<!-- PenguinMod Desktop (Section 30): no "Cloud Variables" section (packaged projects have no cloud
+     variables: they work like normal variables). -->
 
 <Section
   accent="#FF6680"

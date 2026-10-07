@@ -7,7 +7,6 @@ import JSZip from 'jszip';
 
 import {EventTarget} from '../common/event-target';
 import VideoProvider from './video';
-import Cloud from './cloud';
 import Question from './question';
 import {ListMonitor, VariableMonitor} from './monitor';
 import ControlBar from './control-bar';
@@ -341,8 +340,6 @@ class Scaffolding extends EventTarget {
       }
     });
 
-    this.cloudManager = new Cloud.CloudManager(this);
-
     this.renderer = new Renderer(
       this._canvas,
       -this.width / 2,
@@ -450,8 +447,7 @@ class Scaffolding extends EventTarget {
   loadProject (data) {
     return this.vm.loadProject(data)
       .then(() => {
-        this.vm.setCloudProvider(this.cloudManager);
-        this.cloudManager.projectReady();
+        // PenguinMod Desktop (Section 30): no cloud provider, so cloud variables work like normal ones.
         this.renderer.draw();
         // Render again after a short delay because some costumes are loaded async
         setTimeout(() => {
@@ -469,14 +465,6 @@ class Scaffolding extends EventTarget {
     this.vm.postIOData('userData', {
       username
     });
-  }
-
-  addCloudProvider (provider) {
-    this.cloudManager.addProvider(provider);
-  }
-
-  addCloudProviderOverride (name, provider) {
-    this.cloudManager.addProviderOverride(name, provider);
   }
 
   addControlButton({element, where}) {
@@ -558,7 +546,6 @@ class Scaffolding extends EventTarget {
 
 export {
   Scaffolding,
-  Cloud,
   VM,
   Renderer,
   Storage,
