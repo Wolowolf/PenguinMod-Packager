@@ -104,6 +104,29 @@ const mutateScratch3InPlace = (projectData) => {
     optimizeSb3Json(projectData);
 };
 
+// The editor saves the extensions of the app's galleries by ID only (like built-in extensions).
+// The packager needs their addresses to bake them into the package, so they are put back into
+// the project data here, from the list the app serves (ID => gallery address).
+const getGalleryExtensionURLs = async () => {
+    try {
+        const res = await fetch("https://studio.penguinmod.com/__extension-ids__.json");
+        if (!res.ok) return {};
+        return await res.json();
+    } catch (e) {
+        return {};
+    }
+};
+
+const restoreGalleryExtensionURLs = (projectData, galleryURLs) => {
+    if (!Array.isArray(projectData.extensions)) return;
+    for (const id of projectData.extensions) {
+        const url = galleryURLs[id];
+        if (typeof url !== "string") continue;
+        if (!projectData.extensionURLs) projectData.extensionURLs = {};
+        if (!projectData.extensionURLs[id]) projectData.extensionURLs[id] = url;
+    }
+};
+
 export const downloadProject = async (
     projectData,
     progressCallback = () => {},
@@ -111,6 +134,7 @@ export const downloadProject = async (
     pid = 0,
 ) => {
     let analysis = unknownAnalysis();
+    const galleryURLs = await getGalleryExtensionURLs();
 
     const options = {
         signal,
@@ -124,6 +148,7 @@ export const downloadProject = async (
         processJSON(type, projectData) {
             if (type === "sb3" || type === "pm" || type === "pmp") {
                 mutateScratch3InPlace(projectData);
+                restoreGalleryExtensionURLs(projectData, galleryURLs);
                 analysis = analyzeScratch3(projectData);
                 return projectData;
             }

@@ -1439,6 +1439,8 @@ cd "$(dirname "$0")"
         getSandboxMode: () => 'unsandboxed',
         canLoadExtensionFromProject: () => true
       });
+      // The editor only loads extensions of the app's galleries; a package holds its own copies.
+      vm.extensionManager.unrestrictedExtensionURLs = true;
       for (const extension of ${JSON.stringify(await this.generateExtensionURLs())}) {
         vm.extensionManager.loadExtensionURL(extension);
       }
