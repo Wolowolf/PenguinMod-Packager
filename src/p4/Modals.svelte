@@ -1,7 +1,7 @@
 <script>
   import Section from './Section.svelte';
   import Button from './Button.svelte';
-  import {CannotAccessProjectError, OutdatedPackagerError, UnknownNetworkError, UserError} from '../common/errors';
+  import {OutdatedPackagerError, UnknownNetworkError, UserError} from '../common/errors';
   import {error} from './stores';
   import {_} from '../locales/';
   import ComplexMessage from './ComplexMessage.svelte';
@@ -113,13 +113,6 @@
         <p>
           <Button on:click={refresh} text={$_('p4.refresh')} />
           <Button secondary on:click={closeModal} text={$_('p4.close')} />
-        </p>
-      {:else if $error instanceof CannotAccessProjectError}
-        <p>
-          {$_('p4.cannotAccessProject')}
-        </p>
-        <p>
-          <Button on:click={closeModal} text={$_('p4.close')} />
         </p>
       {:else}
         <p>{$_('p4.errorMessage').replace('{error}', $error)}</p>

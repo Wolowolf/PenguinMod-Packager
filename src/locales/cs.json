@@ -37,15 +37,11 @@
         "enableCompiler": "Aktivovat kompilátor",
         "environment": "Prostředí",
         "foregroundColor": "Barva popředí (průběh, některé ikony, některé texty)",
-        "framerate": "Snímková frekvence",
         "gamepad": "Podporovat USB nebo Bluetooth ovladače",
         "gamepadHelp": "Na základě doplňku \"Gamepad support\"",
-        "highQualityPen": "Pero s vysokým rozlišením",
         "html": "Prostý HTML (samostatný, funguje všude)",
         "icon": "Ikona stránky",
-        "infiniteClones": "Nekonečné klony",
         "interaction": "Vstup",
-        "interpolation": "Interpolace",
         "learnMore": "Zjistit více",
         "loadingScreen": "Obrazovka načítání",
         "loadingScreenImage": "Obrázek obrazovky načítání",
@@ -64,8 +60,6 @@
         "pointerlock": "Uzamknout kurzor myši",
         "pointerlockHelp": "Na základě experimentu TurboWarp.",
         "preview": "Náhled",
-        "removeFencing": "Odstranit hranice",
-        "removeMiscLimits": "Odstranit různé limity",
         "runtimeOptions": "Nastavení běhu",
         "showFlag": "Ukazovat tlačítko zelené vlajky v řízení",
         "showFullscreen": "Ukazovat tlačítko plné obrazovky v řízení",
@@ -75,7 +69,6 @@
         "sizeStretch": "Vyplnit obrazovku",
         "specialCloudBehaviors": "Speciální cloudové proměnné se chovají jako HTMLifier",
         "turbo": "Režim turb",
-        "username": "Jméno (každý znak \"#\" bude nahrazen za náhodné číslo)",
         "warpTimer": "Warp časovač",
         "zip": "Zip (ideální pro stránky)",
         "zip-one-asset": "Zip, spojit soubory do jednoho souboru (nedoporučeno)"
@@ -98,18 +91,6 @@
     },
     "reset": {
         "reset": "Obnovit"
-    },
-    "select": {
-        "file": "Soubor",
-        "id": "ID projektu Scratch nebo odkaz projektu",
-        "invalidId": "Neplatný ID projektu",
-        "invalidUrl": "Neplatný odkaz",
-        "loadProject": "Načíst projekt",
-        "loadToContinue": "Pro pokračování načtěte projekt",
-        "noFileSelected": "Žádný soubor není vybrán",
-        "select": "Vyberte projekt",
-        "selectHelp": "Vyberte projekt který chcete sbalit kopírováním a vložením odkazu projektu Scratch nebo používáním jeden z ostatních režimů. Jestli používáte projekt, který jste nevytvořeli, ujistěte se, že děkujete tvůrci. ",
-        "url": "Jiný odkaz"
     },
     "theme": {
         "dark": "Tmavé",

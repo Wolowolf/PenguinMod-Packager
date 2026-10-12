@@ -40,15 +40,11 @@
         "enableCompiler": "編譯器",
         "environment": "封裝選項",
         "foregroundColor": "前景色（進度條、某些圖示和文字等）",
-        "framerate": "幀率",
         "gamepad": "支援 USB 或藍牙遊戲手把",
         "gamepadHelp": "基於「遊戲手把支援」附加元件。",
-        "highQualityPen": "高品質畫筆",
         "html": "HTML（獨立，各處皆可用）",
         "icon": "圖示",
-        "infiniteClones": "無限分身",
         "interaction": "輸入",
-        "interpolation": "補幀",
         "learnMore": "瞭解更多",
         "loadingScreen": "載入畫面",
         "loadingScreenImage": "載入畫面圖片",
@@ -69,8 +65,6 @@
         "pointerlockHelp": "基於 TurboWarp 實驗性功能。",
         "preview": "預覽",
         "projectId": "作品ID",
-        "removeFencing": "移除屏障",
-        "removeMiscLimits": "移除各類限制",
         "runtimeOptions": "運行選項",
         "showFlag": "在控制欄顯示綠旗",
         "showFullscreen": "全螢幕按鈕",
@@ -83,7 +77,6 @@
         "startMaximized": "以最大化窗口啟動",
         "startWindow": "以窗口啟動",
         "turbo": "加速模式",
-        "username": "用戶名稱（以「#」代表一個隨機數）",
         "warpTimer": "防卡死",
         "zip": "Zip（用於網站的最佳選擇）",
         "zip-one-asset": "Zip，封裝所有素材（不推薦）"
@@ -107,25 +100,12 @@
     "progress": {
         "compressingProject": "壓縮專案中……",
         "loadingLargeAsset": "下載中{thing}",
-        "loadingProjectData": "作品數據下載中",
         "loadingScripts": "腳本下載中",
         "packagingProject": "封裝專案中……"
     },
     "reset": {
         "confirm": "你確定要重設這些設定嗎？這不能被撤銷。",
         "reset": "重設"
-    },
-    "select": {
-        "file": "檔案",
-        "id": "Scratch 專案 ID 或網址",
-        "invalidId": "無效的專案 ID",
-        "invalidUrl": "無效的專案網址",
-        "loadProject": "載入專案",
-        "loadToContinue": "載入專案以繼續",
-        "noFileSelected": "沒有選擇檔案。",
-        "select": "選擇專案",
-        "selectHelp": "貼上你要封裝的專案網址、ID 或上傳檔案。\n注意：若此專案並非你的作品，請標記原作者。",
-        "url": "其他網址"
     },
     "theme": {
         "dark": "黑暗主題",

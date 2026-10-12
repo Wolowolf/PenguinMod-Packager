@@ -1485,6 +1485,9 @@ cd "$(dirname "$0")"
     const run = async () => {
       const projectData = await getProjectData();
       await scaffolding.loadProject(projectData);
+      // PenguinMod Desktop (Section 68): the project's stored settings apply while it loads; the
+      // packager's turbo mode choice still wins.
+      vm.setTurboMode(${this.options.turbo});
       setProgress(1);
       loadingScreen.hidden = true;
       if (${this.options.autoplay}) {

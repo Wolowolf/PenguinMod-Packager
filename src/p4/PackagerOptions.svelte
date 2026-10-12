@@ -25,11 +25,36 @@
 
   export let projectData;
   export let title;
-  
-  // JSON can't easily parse Infinity, so we'll just store large numbers instead
-  const ALMOST_INFINITY = 9999999999;
+
+  // PenguinMod Desktop (Section 68): the packaged project always runs with the settings stored in
+  // it (its VM applies them when it loads), so the packager has no switches for them. Only the
+  // stage size is copied here (the Windows app's window size depends on it); turbo mode starts as
+  // the project has it and can still be changed.
+  const readProjectSettings = () => {
+    const magic = ' // _twconfig_';
+    for (const text of projectData.project.analysis.stageComments) {
+      const line = text.split('\n').find((i) => i.endsWith(magic));
+      if (line) {
+        const json = line.slice(0, -magic.length);
+        const number = (key) => {
+          const match = json.match(new RegExp(`"${key}":\\s*([0-9.]+)`));
+          return match ? +match[1] : 0;
+        };
+        return {
+          width: number('width'),
+          height: number('height'),
+          turbo: /"turbo":\s*true/.test(json)
+        };
+      }
+    }
+    return {width: 0, height: 0, turbo: false};
+  };
+  const projectSettings = readProjectSettings();
 
   const defaultOptions = Packager.DEFAULT_OPTIONS();
+  const projectStageWidth = projectSettings.width || defaultOptions.stageWidth;
+  const projectStageHeight = projectSettings.height || defaultOptions.stageHeight;
+  defaultOptions.turbo = projectSettings.turbo;
   defaultOptions.projectId = projectData.projectId || `p4-${projectData.uniqueId}`;
   defaultOptions.app.packageName = Packager.getDefaultPackageNameFromFileName(projectData.title);
   defaultOptions.app.windowTitle = Packager.getWindowTitleFromFileName(projectData.title);
@@ -42,10 +67,20 @@
     return i;
   });
 
-  const hasMagicComment = (magic) => projectData.project.analysis.stageComments.find(
-    (text) => text.split('\n').find((line) => line.endsWith(magic))
-  );
-  const hasSettingsStoredInProject = hasMagicComment(' // _twconfig_');
+  // Remembered or imported options may hold values for the removed runtime options: they always
+  // become the defaults, and the stage size always becomes the project's (Section 68).
+  const FIXED_RUNTIME_OPTIONS = ['framerate', 'interpolation', 'maxClones', 'fencing', 'miscLimits', 'dangerousOptimizations', 'resizeMode', 'username'];
+  $: if (
+    $options.stageWidth !== projectStageWidth ||
+    $options.stageHeight !== projectStageHeight ||
+    FIXED_RUNTIME_OPTIONS.some((key) => $options[key] !== defaultOptions[key])
+  ) {
+    for (const key of FIXED_RUNTIME_OPTIONS) {
+      $options[key] = defaultOptions[key];
+    }
+    $options.stageWidth = projectStageWidth;
+    $options.stageHeight = projectStageHeight;
+  }
 
   let result = null;
   let previewer = null;
@@ -320,114 +355,22 @@
   reset={() => {
     resetOptions([
       'turbo',
-      'framerate',
-      'interpolation',
-      'maxClones',
-      'fencing',
-      'miscLimits',
-      'dangerousOptimizations',
-      'stageWidth',
-      'stageHeight',
-      'resizeMode',
-      'username'
+      'closeWhenStopped'
     ]);
   }}
 >
   <div>
     <h2>{$_('options.runtimeOptions')}</h2>
 
-    {#if hasSettingsStoredInProject}
-      <div class="group">
-        {$_('options.storedWarning')}
-      </div>
-    {/if}
-
+    <!-- PenguinMod Desktop (Section 68): only these two; everything else comes from the project. -->
     <label class="option">
       <input type="checkbox" bind:checked={$options.turbo}>
       {$_('options.turbo')}
-    </label>
-    <div class="option">
-      <label>
-        {$_('options.framerate')}
-        <input type="number" min="0" max="240" bind:value={$options.framerate}>
-      </label>
-      <LearnMore slug="custom-fps" />
-    </div>
-    <div class="option">
-      <label>
-        <input type="checkbox" bind:checked={$options.interpolation}>
-        {$_('options.interpolation')}
-      </label>
-      <LearnMore slug="interpolation" />
-    </div>
-    <!-- PenguinMod Desktop (Section 31): no High quality pen switch (always on: section 21). -->
-    <div class="option">
-      <label>
-        <input type="checkbox" checked={$options.maxClones === ALMOST_INFINITY} on:change={(e) => {
-          $options.maxClones = e.target.checked ? ALMOST_INFINITY : 300;
-        }}>
-        {$_('options.infiniteClones')}
-      </label>
-      <LearnMore slug="infinite-clones" />
-    </div>
-    <div class="option">
-      <label>
-        <input type="checkbox" checked={!$options.fencing} on:change={(e) => {
-          $options.fencing = !e.target.checked;
-        }}>
-        {$_('options.removeFencing')}
-      </label>
-      <LearnMore slug="remove-fencing" />
-    </div>
-    <div class="option">
-      <label>
-        <input type="checkbox" checked={!$options.miscLimits} on:change={(e) => {
-          $options.miscLimits = !e.target.checked;
-        }}>
-        {$_('options.removeMiscLimits')}
-      </label>
-      <LearnMore slug="remove-misc-limits" />
-    </div>
-    <div class="option">
-      <label>
-        <input type="checkbox" checked={!$options.dangerousOptimizations} on:change={(e) => {
-          $options.dangerousOptimizations = e.target.checked;
-        }}>
-        Enable Dangerous Optimizations
-      </label>
-    </div>
-    <label class="option">
-      {$_('options.username')}
-      <input type="text" class="shorter" bind:value={$options.username}>
     </label>
     <label class="option">
       <input type="checkbox" bind:checked={$options.closeWhenStopped}>
       {$_('options.closeWhenStopped')}
     </label>
-
-    <h3>{$_('options.stage')}</h3>
-    <label class="option">
-      {$_('options.stageSize')}
-      <input type="number" min="1" max="4096" step="1" bind:value={$options.stageWidth}>
-      &times;
-      <input type="number" min="1" max="4096" step="1" bind:value={$options.stageHeight}>
-      <LearnMore slug="custom-stage-size" />
-    </label>
-    <div class="group">
-      <label class="option">
-        <input type="radio" name="resize-mode" value="preserve-ratio" bind:group={$options.resizeMode}>
-        {$_('options.preserveRatio')}
-      </label>
-      <label class="option">
-        <input type="radio" name="resize-mode" value="stretch" bind:group={$options.resizeMode}>
-        {$_('options.stretch')}
-      </label>
-      <label class="option">
-        <input type="radio" name="resize-mode" value="dynamic-resize" bind:group={$options.resizeMode}>
-        {$_('options.dynamicResize')}
-        <LearnMore slug="packager/dynamic-stage-resize" />
-      </label>
-    </div>
   </div>
 </Section>
 

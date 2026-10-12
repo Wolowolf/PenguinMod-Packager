@@ -3,7 +3,7 @@
   import {fade} from 'svelte/transition';
   import ComplexMessage from './ComplexMessage.svelte';
   import Section from './Section.svelte';
-  import SelectProject from './SelectProject.svelte';
+  import LoadProject from './LoadProject.svelte';
   import SelectLocale from './SelectLocale.svelte';
   import SelectTheme from './SelectTheme.svelte';
   import Progress from './Progress.svelte';
@@ -162,7 +162,7 @@
   {/if}
 
   {#if isSupported}
-    <SelectProject bind:projectData />
+    <LoadProject bind:projectData />
   {:else}
     <Section accent="#4C97FF">
       <h2>{$_('p4.browserNotSupported')}</h2>
