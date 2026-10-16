@@ -539,7 +539,7 @@ cd "$(dirname "$0")"
     zip.file(`${resourcesPrefix}package.json`, JSON.stringify(manifest, null, 4));
 
     const mainJS = `'use strict';
-const {app, BrowserWindow, Menu, shell, screen, dialog} = require('electron');
+const {app, BrowserWindow, Menu, shell, screen, dialog, ipcMain} = require('electron');
 const path = require('path');
 
 const isWindows = process.platform === 'win32';
@@ -575,6 +575,7 @@ const createWindow = (windowOptions) => {
       sandbox: true,
       contextIsolation: true,
       nodeIntegration: false,
+      preload: path.join(__dirname, 'electron-preload.js'),
       // Keep running at full speed when the window is covered or minimised.
       backgroundThrottling: false,
     },
@@ -666,6 +667,76 @@ const openLink = (url) => {
   }
 };
 
+// Game login (Google Auth / Discord Auth extensions): opens a Google or Discord login page in the
+// player's own browser and waits on this PC (http://127.0.0.1) for the page the login sends the
+// player back to (OAuth "loopback" redirect). A redirect_uri without a port gets a free one.
+// Answers {redirectUri, params} or {error}. Used through window.PMLogin (electron-preload.js).
+const LOGIN_PAGES = [
+  {host: 'accounts.google.com', path: '/o/oauth2/'},
+  {host: 'discord.com', path: '/oauth2/authorize'},
+  {host: 'discord.com', path: '/api/oauth2/authorize'}
+];
+let stopLogin = null;
+ipcMain.handle('pm-login-loopback', (event, authUrl) => new Promise((resolve) => {
+  if (stopLogin) stopLogin({error: 'another login started'});
+  let auth, redirect;
+  try {
+    auth = new URL(String(authUrl));
+    redirect = new URL(auth.searchParams.get('redirect_uri') || '');
+  } catch (e) {
+    resolve({error: 'bad login address'});
+    return;
+  }
+  if (auth.protocol !== 'https:' || !LOGIN_PAGES.some((p) => auth.host === p.host && auth.pathname.startsWith(p.path))) {
+    resolve({error: 'not a Google or Discord login page'});
+    return;
+  }
+  if (redirect.protocol !== 'http:' || !['127.0.0.1', 'localhost', '[::1]'].includes(redirect.hostname)) {
+    resolve({error: 'the return address must start with http://127.0.0.1'});
+    return;
+  }
+  const http = require('http');
+  let timer = null;
+  const server = http.createServer((req, res) => {
+    const url = new URL(req.url, redirect.origin);
+    if (url.pathname !== redirect.pathname) {
+      res.writeHead(404);
+      res.end();
+      return;
+    }
+    res.writeHead(200, {'Content-Type': 'text/html; charset=utf-8'});
+    res.end('<!doctype html><meta charset="utf-8"><title>Login</title>' +
+      '<p style="font:16px sans-serif;margin:40px">Done. You can close this tab and go back to the game.</p>');
+    finish({redirectUri: redirect.href, params: Object.fromEntries(url.searchParams)});
+    const window = BrowserWindow.fromWebContents(event.sender);
+    if (window && !window.isDestroyed()) {
+      if (window.isMinimized()) window.restore();
+      window.focus();
+    }
+  });
+  const finish = (answer) => {
+    if (stopLogin !== finish) return;
+    stopLogin = null;
+    clearTimeout(timer);
+    server.close();
+    resolve(answer);
+  };
+  stopLogin = finish;
+  server.on('error', (err) => finish({error: err.code === 'EADDRINUSE' ? 'port ' + redirect.port + ' is already in use' : String(err.message || err)}));
+  timer = setTimeout(() => finish({error: 'timed out'}), 5 * 60 * 1000);
+  const host = redirect.hostname === '[::1]' ? '::1' : '127.0.0.1';
+  server.listen(Number(redirect.port) || 0, host, () => {
+    if (!redirect.port) {
+      redirect.port = String(server.address().port);
+      auth.searchParams.set('redirect_uri', redirect.href);
+    }
+    shell.openExternal(auth.href).catch((err) => finish({error: String(err.message || err)}));
+  });
+}));
+ipcMain.handle('pm-login-cancel', () => {
+  if (stopLogin) stopLogin({error: 'cancelled'});
+});
+
 app.on('render-process-gone', (event, webContents, details) => {
   const window = BrowserWindow.fromWebContents(webContents);
   dialog.showMessageBoxSync(window, {
@@ -726,6 +797,17 @@ app.whenReady().then(() => {
 });
 `;
     zip.file(`${resourcesPrefix}${electronMainName}`, mainJS);
+
+    // For the Google Auth / Discord Auth extensions: log in through the player's own browser
+    // ("pm-login-loopback" in the main script above).
+    const preloadJS = `'use strict';
+const {contextBridge, ipcRenderer} = require('electron');
+contextBridge.exposeInMainWorld('PMLogin', {
+  loopback: (url) => ipcRenderer.invoke('pm-login-loopback', String(url)),
+  cancel: () => ipcRenderer.invoke('pm-login-cancel')
+});
+`;
+    zip.file(`${resourcesPrefix}electron-preload.js`, preloadJS);
 
     for (const [path, data] of Object.entries(projectZip.files)) {
       setFileFast(zip, `${resourcesPrefix}${path}`, data);
