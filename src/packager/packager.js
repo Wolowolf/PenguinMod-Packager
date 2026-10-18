@@ -548,6 +548,8 @@ const isLinux = process.platform === 'linux';
 
 // Laptops with two graphics chips: draw the game with the strong one.
 app.commandLine.appendSwitch('force_high_performance_gpu');
+// SharedArrayBuffer without cross-origin isolation: Text To Speech runs on several threads.
+app.commandLine.appendSwitch('enable-features', 'SharedArrayBuffer');
 
 if (isMac) {
   Menu.setApplicationMenu(Menu.buildFromTemplate([
