@@ -12,8 +12,9 @@ const unknownAnalysis = () => ({
 
 // PenguinMod Desktop (Section 96): the Text To Speech languages and voices the project's blocks
 // use, so a package holds only those speech files. English and alba are the defaults, so always
-// in; a reporter in a set language / set voice menu means all of them (voices: null). A Supertonic
-// voice (or a reporter) adds the Supertonic model (supertonic: true); languages lists Pocket's only.
+// in; a reporter in a set voice block's voice or language menu means all of them (voices: null). A Supertonic
+// voice (or a reporter) adds the Supertonic model (supertonic: true); languages lists Pocket's only, from
+// blocks whose voice is a Pocket voice or a reporter.
 const SPEECH_ID = "pmTextToSpeech";
 const SPEECH_LANGUAGES = ["english", "french", "german", "italian", "portuguese", "spanish"];
 const analyzeSpeech = (projectData) => {
@@ -34,12 +35,13 @@ const analyzeSpeech = (projectData) => {
             if (!block || Array.isArray(block) || typeof block.opcode !== "string") continue;
             if (!block.opcode.startsWith(`${SPEECH_ID}_`)) continue;
             used = true;
-            if (block.opcode === `${SPEECH_ID}_setLanguage`) {
-                const language = menuValue(block, "LANGUAGE", "languages");
-                if (language === null) SPEECH_LANGUAGES.forEach((l) => languages.add(l));
-                else if (SPEECH_LANGUAGES.includes(language)) languages.add(language);
-            } else if (block.opcode === `${SPEECH_ID}_setVoice`) {
+            if (block.opcode === `${SPEECH_ID}_setVoice`) {
                 const voice = menuValue(block, "VOICE", "voices");
+                if (voice === null || !voice.startsWith("supertonic ")) {
+                    const language = menuValue(block, "LANGUAGE", "languages");
+                    if (language === null) SPEECH_LANGUAGES.forEach((l) => languages.add(l));
+                    else if (SPEECH_LANGUAGES.includes(language)) languages.add(language);
+                }
                 if (voice === null) {
                     voices = null;
                     supertonic = true;
