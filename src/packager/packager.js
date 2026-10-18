@@ -1102,7 +1102,9 @@ cd "$(dirname "$0")"
 
   // PenguinMod Desktop (Section 96): Text To Speech's files (the app's /__speech__/ packs) go into
   // speech/ next to index.html: the engine, the languages and voices the project's blocks use, and
-  // their licence texts. The app first downloads packs that are missing (it asks).
+  // their licence texts. The app first downloads packs that are missing (it asks). With Supertonic,
+  // README.txt also holds terms of use that make its licence's use restrictions binding on players
+  // and anyone passing the game on (OpenRAIL-M paragraph 4a), with Attachment A copied in.
   async addSpeech (zip) {
     const speech = this.project.analysis.speech;
     const base = 'https://studio.penguinmod.com/__speech__/';
@@ -1128,6 +1130,7 @@ cd "$(dirname "$0")"
     }
     const total = files.reduce((sum, file) => sum + file.size, 0);
     let loaded = 0;
+    let supertonicLicense = '';
     for (const file of files) {
       this.ensureNotAborted();
       dispatchProgress(loaded / total);
@@ -1135,8 +1138,12 @@ cd "$(dirname "$0")"
       if (!res.ok) {
         throw new Error(`Could not read Text To Speech file ${file.pack}/${file.path} (${res.status})`);
       }
+      const data = await res.arrayBuffer();
+      if (file.pack === 'supertonic' && file.path === 'LICENSE.txt') {
+        supertonicLicense = new TextDecoder().decode(data);
+      }
       // The models barely compress; storing them keeps packaging fast.
-      zip.file(`speech/${file.pack}/${file.path}`, await res.arrayBuffer(), {
+      zip.file(`speech/${file.pack}/${file.path}`, data, {
         compression: file.path.endsWith('.onnx') ? 'STORE' : 'DEFLATE'
       });
       loaded += file.size;
@@ -1150,9 +1157,34 @@ cd "$(dirname "$0")"
       ...(speech.supertonic ? [
         'supertonic: Supertonic 3 by Supertone Inc. (SOURCE.txt, LICENSE.txt: OpenRAIL-M).',
         '',
-        'Notice to everyone who receives or plays this game: the Supertonic 3 model in speech/supertonic is',
-        'subject to the use-based restrictions in paragraph 5 and Attachment A of speech/supertonic/LICENSE.txt.',
-        'By using it you agree not to use it for any of the purposes listed there. Its speech is machine-generated.'
+        '',
+        'TERMS OF USE FOR THE SUPERTONIC 3 MODEL',
+        '',
+        'This game contains the Supertonic 3 text-to-speech model by Supertone Inc. (the files in',
+        'speech/supertonic), licensed under the OpenRAIL-M licence in speech/supertonic/LICENSE.txt.',
+        'These terms govern the use and distribution of that model as part of this game. They are part',
+        "of this game's licence and terms of use and apply in addition to anything else those say.",
+        '',
+        '1. By installing, running or otherwise using this game, or by distributing it, you agree to',
+        '   these terms.',
+        '2. You must not use the model, or any derivative of it, for any of the restricted uses listed',
+        '   below (paragraph 5 and Attachment A of the OpenRAIL-M licence). This applies to the model',
+        '   inside this game and to any copy of it taken from the game.',
+        '3. If you distribute this game or the model, you must include this file and',
+        '   speech/supertonic/LICENSE.txt with it, and require everyone you distribute it to to comply',
+        '   with these terms.',
+        '4. Speech made by the model is machine-generated.',
+        '5. If you break these terms, your permission to use the model ends.',
+        '',
+        'Restricted uses (Attachment A of the OpenRAIL-M licence, unchanged):',
+        '',
+        ...(() => {
+          const start = supertonicLicense.search(/^Attachment A\s*$/m);
+          if (start < 0) {
+            throw new Error('The Supertonic licence file has no Attachment A, so its terms cannot be written.');
+          }
+          return supertonicLicense.slice(start).replace(/\r\n/g, '\n').trim().split('\n');
+        })()
       ] : []),
       ''
     ].join('\r\n'));
