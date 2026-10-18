@@ -1113,7 +1113,7 @@ cd "$(dirname "$0")"
     }));
     dispatchProgress(0);
     const pin = await (await fetch(base + 'packs.json')).json();
-    const packs = ['onnxruntime', 'pocket-voices', ...speech.languages.map((l) => `pocket-${l}`)];
+    const packs = ['onnxruntime', 'pocket-voices', ...speech.languages.map((l) => `pocket-${l}`), ...(speech.supertonic ? ['supertonic'] : [])];
     const install = await (await fetch(`${base}install?packs=${packs.join(',')}`)).json();
     if (!install.ok) {
       throw new Error('The Text To Speech files are not downloaded, so they cannot go into the package.');
@@ -1147,6 +1147,13 @@ cd "$(dirname "$0")"
       'onnxruntime: ONNX Runtime Web by Microsoft (LICENSE.txt, ThirdPartyNotices.txt).',
       ...speech.languages.map((l) => `pocket-${l}: Pocket TTS by Kyutai, ONNX export by KevinAHM (SOURCE.txt, LICENSE.txt).`),
       'pocket-voices: voice clips (SOURCES.txt says who made each one; LICENSE-CC-BY-4.0.txt).',
+      ...(speech.supertonic ? [
+        'supertonic: Supertonic 3 by Supertone Inc. (SOURCE.txt, LICENSE.txt: OpenRAIL-M).',
+        '',
+        'Notice to everyone who receives or plays this game: the Supertonic 3 model in speech/supertonic is',
+        'subject to the use-based restrictions in paragraph 5 and Attachment A of speech/supertonic/LICENSE.txt.',
+        'By using it you agree not to use it for any of the purposes listed there. Its speech is machine-generated.'
+      ] : []),
       ''
     ].join('\r\n'));
     dispatchProgress(1);

@@ -12,13 +12,15 @@ const unknownAnalysis = () => ({
 
 // PenguinMod Desktop (Section 96): the Text To Speech languages and voices the project's blocks
 // use, so a package holds only those speech files. English and alba are the defaults, so always
-// in; a reporter in a set language / set voice menu means all of them (voices: null).
+// in; a reporter in a set language / set voice menu means all of them (voices: null). A Supertonic
+// voice (or a reporter) adds the Supertonic model (supertonic: true); languages lists Pocket's only.
 const SPEECH_ID = "pmTextToSpeech";
 const SPEECH_LANGUAGES = ["english", "french", "german", "italian", "portuguese", "spanish"];
 const analyzeSpeech = (projectData) => {
     let used = false;
     const languages = new Set(["english"]);
     let voices = new Set(["alba"]);
+    let supertonic = false;
     for (const target of projectData.targets) {
         const blocks = target.blocks || {};
         const menuValue = (block, inputName, fieldName) => {
@@ -38,7 +40,10 @@ const analyzeSpeech = (projectData) => {
                 else if (SPEECH_LANGUAGES.includes(language)) languages.add(language);
             } else if (block.opcode === `${SPEECH_ID}_setVoice`) {
                 const voice = menuValue(block, "VOICE", "voices");
-                if (voice === null) voices = null;
+                if (voice === null) {
+                    voices = null;
+                    supertonic = true;
+                } else if (voice.startsWith("supertonic ")) supertonic = true;
                 else if (voices) voices.add(voice);
             }
         }
@@ -47,6 +52,7 @@ const analyzeSpeech = (projectData) => {
     return {
         languages: SPEECH_LANGUAGES.filter((l) => languages.has(l)),
         voices: voices && Array.from(voices),
+        supertonic,
     };
 };
 

@@ -712,7 +712,7 @@
       {#if $options.target === 'html'}
         <p class="warning">Text To Speech cannot speak in a single HTML file: its speech files can only go into a zip or an application. Choose another environment.</p>
       {:else}
-        <p>Text To Speech files are added for {projectData.project.analysis.speech.languages.join(', ')} and {projectData.project.analysis.speech.voices ? 'the voices ' + projectData.project.analysis.speech.voices.join(', ') : 'all voices'} (about 160 MB, each further language about 145 MB, French about 375 MB).</p>
+        <p>Text To Speech files are added for {projectData.project.analysis.speech.languages.join(', ')} and {projectData.project.analysis.speech.voices ? 'the voices ' + projectData.project.analysis.speech.voices.join(', ') : 'all voices'}{projectData.project.analysis.speech.supertonic ? ', plus the Supertonic 3 model (about 400 MB, OpenRAIL-M: its use restrictions apply to players, see speech/README.txt)' : ''} (about 160 MB, each further language about 145 MB, French about 375 MB).</p>
       {/if}
     {/if}
 
