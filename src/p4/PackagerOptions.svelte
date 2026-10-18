@@ -359,14 +359,15 @@
   reset={() => {
     resetOptions([
       'turbo',
-      'closeWhenStopped'
+      'closeWhenStopped',
+      'askBeforeClosing'
     ]);
   }}
 >
   <div>
     <h2>{$_('options.runtimeOptions')}</h2>
 
-    <!-- PenguinMod Desktop (Section 68): only these two; everything else comes from the project. -->
+    <!-- PenguinMod Desktop (Section 68): only these; everything else comes from the project. -->
     <label class="option">
       <input type="checkbox" bind:checked={$options.turbo}>
       {$_('options.turbo')}
@@ -374,6 +375,10 @@
     <label class="option">
       <input type="checkbox" bind:checked={$options.closeWhenStopped}>
       {$_('options.closeWhenStopped')}
+    </label>
+    <label class="option">
+      <input type="checkbox" bind:checked={$options.askBeforeClosing}>
+      {$_('options.askBeforeClosing')}
     </label>
   </div>
 </Section>

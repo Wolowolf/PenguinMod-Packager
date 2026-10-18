@@ -593,6 +593,21 @@ const createWindow = (windowOptions) => {
   options.y = bounds.y + ((bounds.height - options.height) / 2);
 
   const window = new BrowserWindow(options);
+  // "Ask before closing" (the page cancels its unload): Electron only cancels, so ask here
+  window.webContents.on('will-prevent-unload', (event) => {
+    const choice = dialog.showMessageBoxSync(window, {
+      type: 'question',
+      buttons: ['Close', 'Stay'],
+      defaultId: 1,
+      cancelId: 1,
+      title: options.title,
+      message: 'Close this window?',
+      detail: 'Changes you made may not be saved.'
+    });
+    if (choice === 0) {
+      event.preventDefault();
+    }
+  });
   return window;
 };
 
@@ -1621,6 +1636,10 @@ cd "$(dirname "$0")"
         vm.extensionManager.loadExtensionURL(extension);
       }
 
+      ${this.options.askBeforeClosing ? `
+      window.addEventListener('beforeunload', (e) => {
+        e.preventDefault();
+      });` : ''}
       ${this.options.closeWhenStopped ? `
       vm.runtime.on('PROJECT_RUN_STOP', () => {
         if (!vm.isPaused || !vm.isPaused()) {
@@ -1780,6 +1799,7 @@ Packager.DEFAULT_OPTIONS = () => ({
   autoplay: false,
   username: 'player####',
   closeWhenStopped: false,
+  askBeforeClosing: false,
   projectId: '',
   custom: {
     css: '',

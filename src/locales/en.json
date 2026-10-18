@@ -115,6 +115,10 @@
       "string": "Close window when project stops",
       "context": "Option to close the window containing the packaged project when all the scripts within a project have stopped running."
     },
+    "askBeforeClosing": {
+      "string": "Ask before closing the tab or window",
+      "context": "Option to show a confirmation prompt when someone tries to close the tab or window of the packaged project."
+    },
     "autoplay": {
       "string": "Start project automatically instead of showing a big blue flag"
     },
