@@ -7,7 +7,48 @@ const unknownAnalysis = () => ({
     usesMusic: true,
     extensions: [],
     builtInExts: [],
+    speech: null,
 });
+
+// PenguinMod Desktop (Section 96): the Text To Speech languages and voices the project's blocks
+// use, so a package holds only those speech files. English and alba are the defaults, so always
+// in; a reporter in a set language / set voice menu means all of them (voices: null).
+const SPEECH_ID = "pmTextToSpeech";
+const SPEECH_LANGUAGES = ["english", "french", "german", "italian", "portuguese", "spanish"];
+const analyzeSpeech = (projectData) => {
+    let used = false;
+    const languages = new Set(["english"]);
+    let voices = new Set(["alba"]);
+    for (const target of projectData.targets) {
+        const blocks = target.blocks || {};
+        const menuValue = (block, inputName, fieldName) => {
+            const input = block.inputs && block.inputs[inputName];
+            if (!input || input[0] !== 1 || typeof input[1] !== "string") return null;
+            const menu = blocks[input[1]];
+            const field = menu && menu.fields && menu.fields[fieldName];
+            return field ? String(field[0]).toLowerCase().trim() : null;
+        };
+        for (const block of Object.values(blocks)) {
+            if (!block || Array.isArray(block) || typeof block.opcode !== "string") continue;
+            if (!block.opcode.startsWith(`${SPEECH_ID}_`)) continue;
+            used = true;
+            if (block.opcode === `${SPEECH_ID}_setLanguage`) {
+                const language = menuValue(block, "LANGUAGE", "languages");
+                if (language === null) SPEECH_LANGUAGES.forEach((l) => languages.add(l));
+                else if (SPEECH_LANGUAGES.includes(language)) languages.add(language);
+            } else if (block.opcode === `${SPEECH_ID}_setVoice`) {
+                const voice = menuValue(block, "VOICE", "voices");
+                if (voice === null) voices = null;
+                else if (voices) voices.add(voice);
+            }
+        }
+    }
+    if (!used) return null;
+    return {
+        languages: SPEECH_LANGUAGES.filter((l) => languages.has(l)),
+        voices: voices && Array.from(voices),
+    };
+};
 
 const analyzeScratch2 = (projectData) => {
     const stageVariables = (projectData.variables || []).map(
@@ -55,6 +96,7 @@ const analyzeScratch3 = (projectData) => {
         usesMusic,
         extensions,
         builtInExts,
+        speech: analyzeSpeech(projectData),
     };
 };
 

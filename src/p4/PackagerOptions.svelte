@@ -170,6 +170,10 @@
       task.setProgressText($_('progress.downloadingExtensions'));
       task.setProgress(detail.progress);
     });
+    packager.addEventListener('fetch-speech', ({detail}) => {
+      task.setProgressText('Adding Text To Speech files');
+      task.setProgress(detail.progress);
+    });
     packager.addEventListener('large-asset-fetch', ({detail}) => {
       let thing;
       if (detail.asset.startsWith('nwjs-')) {
@@ -702,6 +706,15 @@
         {$_('options.application-win64').replace('{type}', 'Electron')}
       </label>
     </div>
+
+    <!-- PenguinMod Desktop (Section 96): Text To Speech needs its speech files next to the game. -->
+    {#if projectData.project.analysis.speech}
+      {#if $options.target === 'html'}
+        <p class="warning">Text To Speech cannot speak in a single HTML file: its speech files can only go into a zip or an application. Choose another environment.</p>
+      {:else}
+        <p>Text To Speech files are added for {projectData.project.analysis.speech.languages.join(', ')} and {projectData.project.analysis.speech.voices ? 'the voices ' + projectData.project.analysis.speech.voices.join(', ') : 'all voices'} (about 160 MB, each further language about 145 MB, French about 375 MB).</p>
+      {/if}
+    {/if}
 
     <details open={otherEnvironmentsInitiallyOpen}>
       <summary>{$_('options.otherEnvironments')}</summary>

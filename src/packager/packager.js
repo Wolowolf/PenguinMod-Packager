@@ -1100,6 +1100,58 @@ cd "$(dirname "$0")"
     return `url(${data}) ${this.options.cursor.center.x} ${this.options.cursor.center.y}, auto`;
   }
 
+  // PenguinMod Desktop (Section 96): Text To Speech's files (the app's /__speech__/ packs) go into
+  // speech/ next to index.html: the engine, the languages and voices the project's blocks use, and
+  // their licence texts. The app first downloads packs that are missing (it asks).
+  async addSpeech (zip) {
+    const speech = this.project.analysis.speech;
+    const base = 'https://studio.penguinmod.com/__speech__/';
+    const dispatchProgress = (progress) => this.dispatchEvent(new CustomEvent('fetch-speech', {
+      detail: {
+        progress
+      }
+    }));
+    dispatchProgress(0);
+    const pin = await (await fetch(base + 'packs.json')).json();
+    const packs = ['onnxruntime', 'pocket-voices', ...speech.languages.map((l) => `pocket-${l}`)];
+    const install = await (await fetch(`${base}install?packs=${packs.join(',')}`)).json();
+    if (!install.ok) {
+      throw new Error('The Text To Speech files are not downloaded, so they cannot go into the package.');
+    }
+    const files = [];
+    for (const pack of packs) {
+      for (const file of pin.packs[pack].files) {
+        const voice = pack === 'pocket-voices' && file.path.endsWith('.wav') ? file.path.slice(0, -4) : null;
+        if (voice && speech.voices && !speech.voices.includes(voice)) continue;
+        files.push({pack, path: file.path, size: file.size});
+      }
+    }
+    const total = files.reduce((sum, file) => sum + file.size, 0);
+    let loaded = 0;
+    for (const file of files) {
+      this.ensureNotAborted();
+      dispatchProgress(loaded / total);
+      const res = await fetch(`${base}${file.pack}/${file.path}`);
+      if (!res.ok) {
+        throw new Error(`Could not read Text To Speech file ${file.pack}/${file.path} (${res.status})`);
+      }
+      // The models barely compress; storing them keeps packaging fast.
+      zip.file(`speech/${file.pack}/${file.path}`, await res.arrayBuffer(), {
+        compression: file.path.endsWith('.onnx') ? 'STORE' : 'DEFLATE'
+      });
+      loaded += file.size;
+    }
+    zip.file('speech/README.txt', [
+      'Text To Speech files used by this project. The licence texts in each folder apply to its files.',
+      '',
+      'onnxruntime: ONNX Runtime Web by Microsoft (LICENSE.txt, ThirdPartyNotices.txt).',
+      ...speech.languages.map((l) => `pocket-${l}: Pocket TTS by Kyutai, ONNX export by KevinAHM (SOURCE.txt, LICENSE.txt).`),
+      'pocket-voices: voice clips (SOURCES.txt says who made each one; LICENSE-CC-BY-4.0.txt).',
+      ''
+    ].join('\r\n'));
+    dispatchProgress(1);
+  }
+
   async generateExtensionURLs () {
     const dispatchProgress = (progress) => this.dispatchEvent(new CustomEvent('fetch-extensions', {
       detail: {
@@ -1523,6 +1575,7 @@ cd "$(dirname "$0")"
       });
       // The editor only loads extensions of the app's galleries; a package holds its own copies.
       vm.extensionManager.unrestrictedExtensionURLs = true;
+      ${this.project.analysis.speech ? `globalThis.pmSpeechBase = 'speech/';` : ''}
       for (const extension of ${JSON.stringify(await this.generateExtensionURLs())}) {
         vm.extensionManager.loadExtensionURL(extension);
       }
@@ -1606,6 +1659,9 @@ cd "$(dirname "$0")"
       }
       zip.file('index.html', html);
       zip.file('script.js', this.script);
+      if (this.project.analysis.speech) {
+        await this.addSpeech(zip);
+      }
 
       if (this.options.target.startsWith('nwjs-')) {
         zip = await this.addNwJS(zip);
