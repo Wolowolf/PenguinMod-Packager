@@ -154,12 +154,14 @@ const mutateScratch3InPlace = (projectData) => {
     optimizeSb3Json(projectData);
 };
 
-// The editor saves the extensions of the app's galleries by ID only (like built-in extensions).
-// The packager needs their addresses to bake them into the package, so they are put back into
-// the project data here, from the list the app serves (ID => gallery address).
-const getGalleryExtensionURLs = async () => {
+// The app only runs the extensions it ships with. The editor saves gallery extensions by ID only
+// (like built-in extensions); the packager needs their addresses to bake them into the package, so
+// they are taken from the editor's list of shipped extensions (ID => gallery address). Addresses
+// stored in the project are ignored; a project that stores an address for an extension the app
+// does not ship is refused.
+const getShippedExtensionURLs = async () => {
     try {
-        const res = await fetch("https://studio.penguinmod.com/__extension-ids__.json");
+        const res = await fetch("https://studio.penguinmod.com/shipped-extensions.json");
         if (!res.ok) return {};
         return await res.json();
     } catch (e) {
@@ -167,14 +169,18 @@ const getGalleryExtensionURLs = async () => {
     }
 };
 
-const restoreGalleryExtensionURLs = (projectData, galleryURLs) => {
-    if (!Array.isArray(projectData.extensions)) return;
-    for (const id of projectData.extensions) {
-        const url = galleryURLs[id];
-        if (typeof url !== "string") continue;
-        if (!projectData.extensionURLs) projectData.extensionURLs = {};
-        if (!projectData.extensionURLs[id]) projectData.extensionURLs[id] = url;
+const setShippedExtensionURLs = (projectData, shippedURLs) => {
+    const has = (id) => Object.prototype.hasOwnProperty.call(shippedURLs, id);
+    for (const id of Object.keys(projectData.extensionURLs || {})) {
+        if (!has(id)) {
+            throw new Error(`This project uses an extension that is not part of the app: ${id}`);
+        }
     }
+    const extensionURLs = {};
+    for (const id of Array.isArray(projectData.extensions) ? projectData.extensions : []) {
+        if (has(id)) extensionURLs[id] = shippedURLs[id];
+    }
+    projectData.extensionURLs = extensionURLs;
 };
 
 export const downloadProject = async (
@@ -184,7 +190,7 @@ export const downloadProject = async (
     pid = 0,
 ) => {
     let analysis = unknownAnalysis();
-    const galleryURLs = await getGalleryExtensionURLs();
+    const shippedURLs = await getShippedExtensionURLs();
 
     const options = {
         signal,
@@ -198,7 +204,7 @@ export const downloadProject = async (
         processJSON(type, projectData) {
             if (type === "sb3" || type === "pm" || type === "pmp") {
                 mutateScratch3InPlace(projectData);
-                restoreGalleryExtensionURLs(projectData, galleryURLs);
+                setShippedExtensionURLs(projectData, shippedURLs);
                 analysis = analyzeScratch3(projectData);
                 return projectData;
             }

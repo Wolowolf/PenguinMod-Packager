@@ -5,7 +5,6 @@
   import Section from './Section.svelte';
   import Button from '../p4/Button.svelte';
   import ImageInput from './ImageInput.svelte';
-  import CustomExtensions from '../p4/CustomExtensions.svelte';
   import LearnMore from './LearnMore.svelte';
   import ColorPicker from './ColorPicker.svelte';
   import Downloads from './Downloads.svelte';
@@ -61,11 +60,11 @@
   defaultOptions.extensions = projectData.project.analysis.extensions;
   const options = writablePersistentStore(`PackagerOptions.${projectData.uniqueId}`, defaultOptions);
 
-  // Compatibility with https://github.com/TurboWarp/packager/commit/f66199abd1c896c11aa69247275a1594fdfc95b8
-  $options.extensions = $options.extensions.map(i => {
-    if (typeof i === 'object' && i) return i.url || '';
-    return i;
-  });
+  // The extensions to package are always the project's (only extensions the app ships with);
+  // remembered or imported options can't add others.
+  $: if (JSON.stringify($options.extensions) !== JSON.stringify(defaultOptions.extensions)) {
+    $options.extensions = defaultOptions.extensions;
+  }
 
   // Remembered or imported options may hold values for the removed runtime options: they always
   // become the defaults, and the stage size always becomes the project's (Section 68).
@@ -611,16 +610,6 @@
         </label>
         <LearnMore slug="warp-timer" />
       </div>
-
-      <!-- Ignore because CustomExtensions will have a <textarea> inside it -->
-      <!-- svelte-ignore a11y-label-has-associated-control -->
-      <label class="option">
-        {$_('options.customExtensions')}
-        <!-- TODO: use the user-facing documentation when that becomes available -->
-        <LearnMore slug="development/custom-extensions" />
-        <CustomExtensions bind:extensions={$options.extensions} />
-        <p class="warning">{$_('options.customExtensionsSecurity')}</p>
-      </label>
 
       <label class="option">
         <input type="checkbox" bind:checked={$options.bakeExtensions}>
