@@ -1132,7 +1132,7 @@ cd "$(dirname "$0")"
 
   // PenguinMod Desktop (Section 96): Text To Speech's files (the app's /__speech__/ packs) go into
   // speech/ next to index.html: the engine, the languages and voices the project's blocks use, and
-  // their licence texts; since Section 112 also Dictation's (Silero VAD, Moonshine English). The app first downloads packs that are missing (it asks). With Supertonic,
+  // their licence texts; since Section 112 also Dictation's (Silero VAD, Moonshine English; Whisper since Section 113). The app first downloads packs that are missing (it asks). With Supertonic,
   // README.txt also holds terms of use that make its licence's use restrictions binding on players
   // and anyone passing the game on (OpenRAIL-M paragraph 4a), with Attachment A copied in.
   async addSpeech (zip) {
@@ -1148,7 +1148,7 @@ cd "$(dirname "$0")"
     const dictation = this.project.analysis.dictation;
     const packs = ['onnxruntime',
       ...(speech ? ['pocket-voices', ...speech.languages.map((l) => `pocket-${l}`), ...(speech.supertonic ? ['supertonic'] : [])] : []),
-      ...(dictation ? ['silero-vad', 'moonshine-english'] : [])];
+      ...(dictation ? ['silero-vad', 'moonshine-english', ...(dictation.whisper ? ['whisper-small'] : [])] : [])];
     const install = await (await fetch(`${base}install?packs=${packs.join(',')}`)).json();
     if (!install.ok) {
       throw new Error('The speech files are not downloaded, so they cannot go into the package.');
@@ -1189,7 +1189,8 @@ cd "$(dirname "$0")"
       ...(speech ? ['pocket-voices: voice clips (SOURCES.txt says who made each one; LICENSE-CC-BY-4.0.txt).'] : []),
       ...(dictation ? [
         'silero-vad: Silero VAD by Silero Team (SOURCE.txt, LICENSE.txt: MIT).',
-        'moonshine-english: Moonshine Base (English) by Moonshine AI, ONNX export by onnx-community (SOURCE.txt, LICENSE.txt: MIT).'
+        'moonshine-english: Moonshine Base (English) by Moonshine AI, ONNX export by onnx-community (SOURCE.txt, LICENSE.txt: MIT).',
+        ...(dictation.whisper ? ['whisper-small: Whisper small by OpenAI, ONNX export by onnx-community (SOURCE.txt, LICENSE.txt: MIT).'] : [])
       ] : []),
       ...(speech && speech.supertonic ? [
         'supertonic: Supertonic 3 by Supertone Inc. (SOURCE.txt, LICENSE.txt: OpenRAIL-M).',
