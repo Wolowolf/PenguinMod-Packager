@@ -13,6 +13,7 @@ import {darken} from './colors';
 import {Adapter} from './adapter';
 import {removeDefaultFonts, optiCompress} from './compressor';
 import encodeBigString from './encode-big-string';
+import movedGalleryExtensions from 'scratch-vm/src/extension-support/moved-gallery-extensions.json';
 
 const PROGRESS_LOADED_SCRIPTS = 0.1;
 
@@ -275,6 +276,18 @@ class Packager extends EventTarget {
     }
     if (this.options.removeDefaultFonts) texts[1] = removeDefaultFonts(texts[1]);
     if (this.options.optimizeCode) texts[1] = optiCompress(texts[1], this);
+    // PenguinMod Desktop: the chunks of the gallery extensions (built into the VM) the project uses;
+    // the scaffolding's chunk loader finds them in its array, so they are never fetched.
+    const chunkFolder = this.project.analysis.usesMusic ? 'extensions-full' : 'extensions-min';
+    for (const id of this.project.analysis.builtInExts || []) {
+      if (!Object.prototype.hasOwnProperty.call(movedGalleryExtensions, id)) continue;
+      this.ensureNotAborted();
+      texts.push(await request({
+        url: `scaffolding/${chunkFolder}/ext-${id}.js`,
+        type: 'text',
+        abortTarget: this
+      }));
+    }
     if (Object.values(this.getAddonOptions()).some((i) => i)) {
       texts.push(await this.fetchLargeAsset('addons', 'text'));
     }
@@ -1208,54 +1221,6 @@ cd "$(dirname "$0")"
     dispatchProgress(1);
   }
 
-  async generateExtensionURLs () {
-    const dispatchProgress = (progress) => this.dispatchEvent(new CustomEvent('fetch-extensions', {
-      detail: {
-        progress
-      }
-    }));
-
-    const shouldTryToFetch = (url) => {
-      if (!this.options.bakeExtensions) {
-        return false;
-      }
-      try {
-        const parsed = new URL(url);
-        return parsed.protocol === 'http:' || parsed.protocol === 'https:';
-      } catch (e) {
-        return false;
-      }
-    };
-
-    /** @type {string[]} */
-    const allURLs = this.options.extensions;
-    const unfetchableURLs = allURLs.filter((url) => !shouldTryToFetch(url));
-    const urlsToFetch = allURLs.filter((url) => shouldTryToFetch(url));
-    const finalURLs = [...unfetchableURLs];
-
-    if (urlsToFetch.length !== 0) {
-      for (let i = 0; i < urlsToFetch.length; i++) {
-        dispatchProgress(i / urlsToFetch.length);
-        const url = urlsToFetch[i];
-        try {
-          const source = await Adapter.fetchExtensionScript(url);
-          // Wrap the extension in an IIFE so that extensions written for the sandbox are less
-          // likely to cause issues in an unsandboxed environment due to global pollution or
-          // overriding Scratch.*
-          const wrappedSource = `(function(Scratch) { ${source} })(Scratch);`
-          const dataURI = `data:text/javascript;,${encodeURIComponent(wrappedSource)}`;
-          finalURLs.push(dataURI);
-        } catch (e) {
-          console.warn('Could not bake extension', url, e);
-          finalURLs.push(url);
-        }
-      }
-      dispatchProgress(1);
-    }
-
-    return finalURLs;
-  }
-
   async package () {
     if (!Adapter) {
       throw new Error('Missing adapter');
@@ -1625,16 +1590,7 @@ cd "$(dirname "$0")"
         ScaffoldingAddons.run(scaffolding, ${JSON.stringify(this.getAddonOptions())});
       }
 
-      scaffolding.setExtensionSecurityManager({
-        getSandboxMode: () => 'unsandboxed',
-        canLoadExtensionFromProject: () => true
-      });
-      // The editor only loads extensions of the app's galleries; a package holds its own copies.
-      vm.extensionManager.unrestrictedExtensionURLs = true;
       ${this.project.analysis.speech ? `globalThis.pmSpeechBase = 'speech/';` : ''}
-      for (const extension of ${JSON.stringify(await this.generateExtensionURLs())}) {
-        vm.extensionManager.loadExtensionURL(extension);
-      }
 
       ${this.options.askBeforeClosing ? `
       window.addEventListener('beforeunload', (e) => {
@@ -1779,8 +1735,7 @@ Packager.getWindowTitleFromFileName = (title) => {
 Packager.usesUnsafeOptions = (options) => {
   const defaultOptions = Packager.DEFAULT_OPTIONS();
   const getUnsafeOptions = (options) => [
-    options.custom,
-    options.extensions
+    options.custom
   ];
   return JSON.stringify(getUnsafeOptions(defaultOptions)) !== JSON.stringify(getUnsafeOptions(options));
 };
@@ -1868,8 +1823,6 @@ Packager.DEFAULT_OPTIONS = () => ({
       y: 0
     }
   },
-  extensions: [],
-  bakeExtensions: true,
   maxTextureDimension: 2048
 });
 

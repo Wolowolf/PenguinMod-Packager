@@ -59,12 +59,6 @@ class WebAdapter {
       });
   }
 
-  fetchExtensionScript (url) {
-    return request({
-      type: 'text',
-      url: url
-    });
-  }
 }
 
 export default WebAdapter;

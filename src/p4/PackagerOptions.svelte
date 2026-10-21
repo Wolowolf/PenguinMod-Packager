@@ -57,14 +57,7 @@
   defaultOptions.projectId = projectData.projectId || `p4-${projectData.uniqueId}`;
   defaultOptions.app.packageName = Packager.getDefaultPackageNameFromFileName(projectData.title);
   defaultOptions.app.windowTitle = Packager.getWindowTitleFromFileName(projectData.title);
-  defaultOptions.extensions = projectData.project.analysis.extensions;
   const options = writablePersistentStore(`PackagerOptions.${projectData.uniqueId}`, defaultOptions);
-
-  // The extensions to package are always the project's (only extensions the app ships with);
-  // remembered or imported options can't add others.
-  $: if (JSON.stringify($options.extensions) !== JSON.stringify(defaultOptions.extensions)) {
-    $options.extensions = defaultOptions.extensions;
-  }
 
   // Remembered or imported options may hold values for the removed runtime options: they always
   // become the defaults, and the stage size always becomes the project's (Section 68).
@@ -123,8 +116,6 @@
   const advancedOptionsInitiallyOpen = (
     $options.compiler.enabled !== defaultOptions.compiler.enabled ||
     $options.compiler.warpTimer !== defaultOptions.compiler.warpTimer ||
-    $options.extensions.length !== 0 ||
-    $options.bakeExtensions !== defaultOptions.bakeExtensions ||
     $options.custom.css !== '' ||
     $options.custom.js !== '' ||
     $options.projectId !== defaultOptions.projectId ||
@@ -165,10 +156,6 @@
 
     task.setProgressText($_('progress.loadingScripts'));
 
-    packager.addEventListener('fetch-extensions', ({detail}) => {
-      task.setProgressText($_('progress.downloadingExtensions'));
-      task.setProgress(detail.progress);
-    });
     packager.addEventListener('fetch-speech', ({detail}) => {
       task.setProgressText('Adding Text To Speech files');
       task.setProgress(detail.progress);
@@ -583,8 +570,6 @@
   reset={() => {
     resetOptions([
       'compiler',
-      'extensions',
-      'bakeExtensions',
       'custom',
       'projectId',
       'maxTextureDimension'
@@ -610,11 +595,6 @@
         </label>
         <LearnMore slug="warp-timer" />
       </div>
-
-      <label class="option">
-        <input type="checkbox" bind:checked={$options.bakeExtensions}>
-        {$_('options.bakeExtensions')}
-      </label>
 
       <label class="option">
         {$_('options.customCSS')}

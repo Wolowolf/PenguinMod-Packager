@@ -35,7 +35,15 @@ const makeScaffolding = ({full}) => ({
   devtool: isProduction ? '' : 'source-map',
   output: {
     filename: 'scaffolding/[name].js',
+    // PenguinMod Desktop: the gallery extensions built into the VM are chunks of their own (one per
+    // extension, "ext-<ID>"); a package holds only the chunks of its project's extensions, pushed
+    // into this array before the scaffolding starts (Packager.loadResources).
+    chunkFilename: `scaffolding/${full ? 'extensions-full' : 'extensions-min'}/[name].js`,
+    jsonpFunction: 'pmDesktopScaffoldingChunks',
     path: dist
+  },
+  optimization: {
+    splitChunks: false
   },
   entry: full ? {
     'scaffolding-full': './src/scaffolding/export.js',

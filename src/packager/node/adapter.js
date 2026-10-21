@@ -95,15 +95,6 @@ class NodeAdapter {
     return file.readAsURL();
   }
 
-  fetchExtensionScript (url) {
-    return fetch(url)
-      .then(res => {
-        if (res.ok) {
-          return res.text();
-        }
-        throw new Error(`Unexpected status code: ${res.status}`);
-      });
-  }
 }
 
 export default NodeAdapter;

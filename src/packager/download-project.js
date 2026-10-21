@@ -5,7 +5,6 @@ const unknownAnalysis = () => ({
     stageVariables: [],
     stageComments: [],
     usesMusic: true,
-    extensions: [],
     builtInExts: [],
     speech: null,
 });
@@ -93,16 +92,12 @@ const analyzeScratch3 = (projectData) => {
     // TODO: usesMusic has possible false negatives
     const usesMusic =
         projectData.extensions && projectData.extensions.includes("music");
-    const extensions = projectData.extensionURLs
-        ? Object.values(projectData.extensionURLs)
-        : [];
     const builtInExts = projectData.extensions;
     return {
         ...unknownAnalysis(),
         stageVariables,
         stageComments,
         usesMusic,
-        extensions,
         builtInExts,
         speech: analyzeSpeech(projectData),
     };
@@ -154,35 +149,6 @@ const mutateScratch3InPlace = (projectData) => {
     optimizeSb3Json(projectData);
 };
 
-// The app only runs the extensions it ships with. The editor saves gallery extensions by ID only
-// (like built-in extensions); the packager needs their addresses to bake them into the package, so
-// they are taken from the editor's list of shipped extensions (ID => gallery address). Addresses
-// stored in the project are ignored; a project that stores an address for an extension the app
-// does not ship is refused.
-const getShippedExtensionURLs = async () => {
-    try {
-        const res = await fetch("https://studio.penguinmod.com/shipped-extensions.json");
-        if (!res.ok) return {};
-        return await res.json();
-    } catch (e) {
-        return {};
-    }
-};
-
-const setShippedExtensionURLs = (projectData, shippedURLs) => {
-    const has = (id) => Object.prototype.hasOwnProperty.call(shippedURLs, id);
-    for (const id of Object.keys(projectData.extensionURLs || {})) {
-        if (!has(id)) {
-            throw new Error(`This project uses an extension that is not part of the app: ${id}`);
-        }
-    }
-    const extensionURLs = {};
-    for (const id of Array.isArray(projectData.extensions) ? projectData.extensions : []) {
-        if (has(id)) extensionURLs[id] = shippedURLs[id];
-    }
-    projectData.extensionURLs = extensionURLs;
-};
-
 export const downloadProject = async (
     projectData,
     progressCallback = () => {},
@@ -190,7 +156,6 @@ export const downloadProject = async (
     pid = 0,
 ) => {
     let analysis = unknownAnalysis();
-    const shippedURLs = await getShippedExtensionURLs();
 
     const options = {
         signal,
@@ -204,7 +169,9 @@ export const downloadProject = async (
         processJSON(type, projectData) {
             if (type === "sb3" || type === "pm" || type === "pmp") {
                 mutateScratch3InPlace(projectData);
-                setShippedExtensionURLs(projectData, shippedURLs);
+                // PenguinMod Desktop: every extension is built into the VM (projects name them by
+                // ID); stored extension addresses are not used.
+                delete projectData.extensionURLs;
                 analysis = analyzeScratch3(projectData);
                 return projectData;
             }
