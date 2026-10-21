@@ -157,7 +157,7 @@
     task.setProgressText($_('progress.loadingScripts'));
 
     packager.addEventListener('fetch-speech', ({detail}) => {
-      task.setProgressText('Adding Text To Speech files');
+      task.setProgressText('Adding speech files');
       task.setProgress(detail.progress);
     });
     packager.addEventListener('large-asset-fetch', ({detail}) => {
@@ -687,6 +687,14 @@
         <p class="warning">Text To Speech cannot speak in a single HTML file: its speech files can only go into a zip or an application. Choose another environment.</p>
       {:else}
         <p>Text To Speech files are added for {projectData.project.analysis.speech.languages.join(', ')} and {projectData.project.analysis.speech.voices ? 'the voices ' + projectData.project.analysis.speech.voices.join(', ') : 'all voices'}{projectData.project.analysis.speech.supertonic ? ', plus the Supertonic 3 model (about 400 MB, OpenRAIL-M: its use restrictions apply to players, see speech/README.txt)' : ''} (about 160 MB, each further language about 145 MB, French about 375 MB).</p>
+      {/if}
+    {/if}
+    <!-- PenguinMod Desktop (Section 112): Dictation needs its speech files next to the game too. -->
+    {#if projectData.project.analysis.dictation}
+      {#if $options.target === 'html'}
+        <p class="warning">Dictation cannot recognize speech in a single HTML file: its speech files can only go into a zip or an application. Choose another environment.</p>
+      {:else}
+        <p>Dictation files are added: Moonshine (English speech recognition) and Silero VAD, about 85 MB with the speech engine (less when Text To Speech already adds it). The game uses the player's microphone only while a Dictation block listens.</p>
       {/if}
     {/if}
 

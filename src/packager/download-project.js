@@ -7,6 +7,7 @@ const unknownAnalysis = () => ({
     usesMusic: true,
     builtInExts: [],
     speech: null,
+    dictation: false,
 });
 
 // PenguinMod Desktop (Section 96): the Text To Speech languages and voices the project's blocks
@@ -57,6 +58,12 @@ const analyzeSpeech = (projectData) => {
     };
 };
 
+// PenguinMod Desktop (Section 112): Dictation (speech to text) needs its speech files too.
+const DICTATION_ID = "pooiod7Dictation";
+const analyzeDictation = (projectData) => projectData.targets.some((target) =>
+    Object.values(target.blocks || {}).some((block) => block && !Array.isArray(block) &&
+        typeof block.opcode === "string" && block.opcode.startsWith(`${DICTATION_ID}_`)));
+
 const analyzeScratch2 = (projectData) => {
     const stageVariables = (projectData.variables || []).map(
         ({ name, isPersistent }) => ({
@@ -100,6 +107,7 @@ const analyzeScratch3 = (projectData) => {
         usesMusic,
         builtInExts,
         speech: analyzeSpeech(projectData),
+        dictation: analyzeDictation(projectData),
     };
 };
 

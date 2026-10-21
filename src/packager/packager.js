@@ -1132,7 +1132,7 @@ cd "$(dirname "$0")"
 
   // PenguinMod Desktop (Section 96): Text To Speech's files (the app's /__speech__/ packs) go into
   // speech/ next to index.html: the engine, the languages and voices the project's blocks use, and
-  // their licence texts. The app first downloads packs that are missing (it asks). With Supertonic,
+  // their licence texts; since Section 112 also Dictation's (Silero VAD, Moonshine English). The app first downloads packs that are missing (it asks). With Supertonic,
   // README.txt also holds terms of use that make its licence's use restrictions binding on players
   // and anyone passing the game on (OpenRAIL-M paragraph 4a), with Attachment A copied in.
   async addSpeech (zip) {
@@ -1145,16 +1145,19 @@ cd "$(dirname "$0")"
     }));
     dispatchProgress(0);
     const pin = await (await fetch(base + 'packs.json')).json();
-    const packs = ['onnxruntime', 'pocket-voices', ...speech.languages.map((l) => `pocket-${l}`), ...(speech.supertonic ? ['supertonic'] : [])];
+    const dictation = this.project.analysis.dictation;
+    const packs = ['onnxruntime',
+      ...(speech ? ['pocket-voices', ...speech.languages.map((l) => `pocket-${l}`), ...(speech.supertonic ? ['supertonic'] : [])] : []),
+      ...(dictation ? ['silero-vad', 'moonshine-english'] : [])];
     const install = await (await fetch(`${base}install?packs=${packs.join(',')}`)).json();
     if (!install.ok) {
-      throw new Error('The Text To Speech files are not downloaded, so they cannot go into the package.');
+      throw new Error('The speech files are not downloaded, so they cannot go into the package.');
     }
     const files = [];
     for (const pack of packs) {
       for (const file of pin.packs[pack].files) {
         const voice = pack === 'pocket-voices' && file.path.endsWith('.wav') ? file.path.slice(0, -4) : null;
-        if (voice && speech.voices && !speech.voices.includes(voice)) continue;
+        if (voice && speech && speech.voices && !speech.voices.includes(voice)) continue;
         files.push({pack, path: file.path, size: file.size});
       }
     }
@@ -1166,7 +1169,7 @@ cd "$(dirname "$0")"
       dispatchProgress(loaded / total);
       const res = await fetch(`${base}${file.pack}/${file.path}`);
       if (!res.ok) {
-        throw new Error(`Could not read Text To Speech file ${file.pack}/${file.path} (${res.status})`);
+        throw new Error(`Could not read speech file ${file.pack}/${file.path} (${res.status})`);
       }
       const data = await res.arrayBuffer();
       if (file.pack === 'supertonic' && file.path === 'LICENSE.txt') {
@@ -1179,12 +1182,16 @@ cd "$(dirname "$0")"
       loaded += file.size;
     }
     zip.file('speech/README.txt', [
-      'Text To Speech files used by this project. The licence texts in each folder apply to its files.',
+      'Speech files used by this project (Text To Speech, Dictation). The licence texts in each folder apply to its files.',
       '',
       'onnxruntime: ONNX Runtime Web by Microsoft (LICENSE.txt, ThirdPartyNotices.txt).',
-      ...speech.languages.map((l) => `pocket-${l}: Pocket TTS by Kyutai, ONNX export by KevinAHM (SOURCE.txt, LICENSE.txt).`),
-      'pocket-voices: voice clips (SOURCES.txt says who made each one; LICENSE-CC-BY-4.0.txt).',
-      ...(speech.supertonic ? [
+      ...(speech ? speech.languages.map((l) => `pocket-${l}: Pocket TTS by Kyutai, ONNX export by KevinAHM (SOURCE.txt, LICENSE.txt).`) : []),
+      ...(speech ? ['pocket-voices: voice clips (SOURCES.txt says who made each one; LICENSE-CC-BY-4.0.txt).'] : []),
+      ...(dictation ? [
+        'silero-vad: Silero VAD by Silero Team (SOURCE.txt, LICENSE.txt: MIT).',
+        'moonshine-english: Moonshine Base (English) by Moonshine AI, ONNX export by onnx-community (SOURCE.txt, LICENSE.txt: MIT).'
+      ] : []),
+      ...(speech && speech.supertonic ? [
         'supertonic: Supertonic 3 by Supertone Inc. (SOURCE.txt, LICENSE.txt: OpenRAIL-M).',
         '',
         '',
@@ -1590,7 +1597,7 @@ cd "$(dirname "$0")"
         ScaffoldingAddons.run(scaffolding, ${JSON.stringify(this.getAddonOptions())});
       }
 
-      ${this.project.analysis.speech ? `globalThis.pmSpeechBase = 'speech/';` : ''}
+      ${this.project.analysis.speech || this.project.analysis.dictation ? `globalThis.pmSpeechBase = 'speech/';` : ''}
 
       ${this.options.askBeforeClosing ? `
       window.addEventListener('beforeunload', (e) => {
@@ -1675,7 +1682,7 @@ cd "$(dirname "$0")"
       }
       zip.file('index.html', html);
       zip.file('script.js', this.script);
-      if (this.project.analysis.speech) {
+      if (this.project.analysis.speech || this.project.analysis.dictation) {
         await this.addSpeech(zip);
       }
 
