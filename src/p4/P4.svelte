@@ -1,7 +1,6 @@
 <script>
   import {_} from '../locales/';
   import {fade} from 'svelte/transition';
-  import ComplexMessage from './ComplexMessage.svelte';
   import Section from './Section.svelte';
   import LoadProject from './LoadProject.svelte';
   import SelectLocale from './SelectLocale.svelte';
@@ -14,8 +13,7 @@
   import {
     APP_NAME,
     ACCENT_COLOR,
-    WEBSITE,
-    PRIVACY_POLICY
+    WEBSITE
   } from '../packager/brand';
 
   let projectData;
@@ -139,17 +137,8 @@
         </p>
       {/if}
       <p>{$_('p4.description1')}</p>
-      <p>
-        <ComplexMessage
-          message={$_('p4.description2')}
-          values={{
-            embedding: {
-              text: $_('p4.description2-embedding'),
-              href: 'https://docs.turbowarp.org/embedding'
-            }
-          }}
-        />
-      </p>
+      <!-- PenguinMod Desktop: no "embedding" paragraph and (footer) no privacy policy or documentation
+           links: they open turbowarp.org pages, which the app refuses (upstream servers). -->
       <!-- PenguinMod Desktop (Section 29): no "Report bugs ... on Discord or on GitHub" line. -->
       <p class="disclaimer">
         {$_('p4.disclaimer')}
@@ -200,12 +189,6 @@
   <footer>
     <div>
       <!-- PenguinMod Desktop (Section 29): no Feedback (Discord), Source code (GitHub) or Donate links. -->
-      {#if PRIVACY_POLICY && !isStandalone}
-        <a href={PRIVACY_POLICY}>{$_('p4.privacy')}</a>
-      {/if}
-    </div>
-    <div>
-      <a href="https://docs.turbowarp.org/packager">{$_('p4.documentation')}</a>
     </div>
     <div>
       <SelectTheme />

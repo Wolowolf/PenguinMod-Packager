@@ -5,7 +5,6 @@
   import Section from './Section.svelte';
   import Button from '../p4/Button.svelte';
   import ImageInput from './ImageInput.svelte';
-  import LearnMore from './LearnMore.svelte';
   import ColorPicker from './ColorPicker.svelte';
   import Downloads from './Downloads.svelte';
   import writablePersistentStore from './persistent-store';
@@ -545,9 +544,7 @@
         <input type="checkbox" bind:checked={$options.chunks.pointerlock}>
         {$_('options.pointerlock')}
       </label>
-      <a href="https://experiments.turbowarp.org/pointerlock/" target="_blank" rel="noopener noreferrer">
-        {$_('options.pointerlockHelp')}
-      </a>
+      <!-- PenguinMod Desktop: no help links (turbowarp.org pages, refused by the app). -->
     </div>
 
     <div class="group">
@@ -555,9 +552,6 @@
         <input type="checkbox" bind:checked={$options.chunks.gamepad}>
         {$_('options.gamepad')}
       </label>
-      <a href="https://turbowarp.org/addons#gamepad" target="_blank" rel="noopener noreferrer">
-        {$_('options.gamepadHelp')}
-      </a>
     </div>
   </div>
 </Section>
@@ -586,14 +580,12 @@
           <input type="checkbox" bind:checked={$options.compiler.enabled}>
           {$_('options.enableCompiler')}
         </label>
-        <LearnMore slug="disable-compiler" />
       </div>
       <div class="option">
         <label>
           <input type="checkbox" bind:checked={$options.compiler.warpTimer}>
           {$_('options.warpTimer')}
         </label>
-        <LearnMore slug="warp-timer" />
       </div>
 
       <label class="option">

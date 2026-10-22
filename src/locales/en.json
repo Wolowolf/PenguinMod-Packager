@@ -1,13 +1,7 @@
 {
   "p4": {
     "description1": {
-      "string": "Converts PenguinMod projects into HTML files, zip archives, or executable programs for Windows, macOS, and Linux."
-    },
-    "description2": {
-      "string": "If you just want an easy way to embed a project into your website, you may be interested in {embedding}."
-    },
-    "description2-embedding": {
-      "string": "Embedding"
+      "string": "Converts PenguinMod projects into HTML files, zip archives, or executable programs for Windows."
     },
     "description3": {
       "string": "Report bugs, give feedback, and suggest ideas {onScratch} or {onGitHub}."
@@ -59,9 +53,6 @@
     "reportBug": {
       "string": "Report Bug"
     },
-    "privacy": {
-      "string": "Privacy Policy"
-    },
     "feedback": {
       "string": "Feedback"
     },
@@ -71,10 +62,6 @@
     "donate": {
       "string": "Donate",
       "context": "Link to donation page"
-    },
-    "documentation": {
-      "string": "Additional resources and help",
-      "context": "Link to a place with additional information describing advanced topics"
     }
   },
   "progress": {
@@ -94,17 +81,9 @@
     "loadingScripts": {
       "string": "Downloading scripts",
       "context": "Loading message used when loading the Scratch runtime"
-    },
-    "downloadingExtensions": {
-      "string": "Downloading custom extensions",
-      "context": "Loading message that appears while downloading custom extensions"
     }
   },
   "options": {
-    "learnMore": {
-      "string": "Learn more",
-      "context": "Hover text for '(?)' link to learn more about an option"
-    },
     "runtimeOptions": {
       "string": "Runtime Options"
     },
@@ -233,14 +212,8 @@
       "string": "Lock mouse cursor",
       "context": "Option to enable pointerlock"
     },
-    "pointerlockHelp": {
-      "string": "Based on a TurboWarp Experiment."
-    },
     "gamepad": {
       "string": "Support USB or Bluetooth gamepads/controllers"
-    },
-    "gamepadHelp": {
-      "string": "Based on the \"Gamepad support\" addon."
     },
     "cloudVariables": {
       "string": "Cloud Variables",
@@ -324,10 +297,6 @@
     },
     "customExtensionsSecurity": {
       "string": "Custom extensions are always run unsandboxed in the packager. Depending on the environment you're packaging for, this grants extensions full control over your computer, including the ability to install viruses. Don't use extensions you don't trust."
-    },
-    "bakeExtensions": {
-      "string": "Try to embed cached copy of custom extensions instead of downloading them each time the project is run",
-      "context": "Option that tries to store "
     },
     "customCSS": {
       "string": "Custom CSS (Don't change if you don't know what you're doing!)",
