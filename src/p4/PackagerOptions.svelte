@@ -694,7 +694,7 @@
       {#if $options.target === 'html'}
         <p class="warning">Dictation cannot recognize speech in a single HTML file: its speech files can only go into a zip or an application. Choose another environment.</p>
       {:else}
-        <p>Dictation files are added: Moonshine (English speech recognition) and Silero VAD, about 85 MB with the speech engine (less when Text To Speech already adds it){projectData.project.analysis.dictation.whisper ? ', plus Whisper for the other languages (about 250 MB)' : ''}. The game uses the player's microphone only while a Dictation block listens.</p>
+        <p>Dictation files are added: Moonshine (English speech recognition) and Silero VAD, about 85 MB with the speech engine (less when Text To Speech already adds it){projectData.project.analysis.dictation.whisper ? ', plus Whisper for the other languages (about 250 MB)' : ''}{projectData.project.analysis.dictation.parakeet ? ', plus Parakeet for high accuracy (about 670 MB, CC BY 4.0)' : ''}. The game uses the player's microphone only while a Dictation block listens.</p>
       {/if}
     {/if}
 

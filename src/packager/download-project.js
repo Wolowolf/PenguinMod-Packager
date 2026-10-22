@@ -59,26 +59,30 @@ const analyzeSpeech = (projectData) => {
 };
 
 // PenguinMod Desktop (Section 112): Dictation (speech to text) needs its speech files too: null when
-// unused, else {whisper}: Whisper (Section 113) when a set language block picks another language than
-// english, or a reporter does.
+// unused, else {whisper, parakeet}: Whisper (Section 113) when a set language block picks another language
+// than english, or a reporter does; Parakeet (Section 115) when a set accuracy block picks high, or a reporter does.
 const DICTATION_ID = "pooiod7Dictation";
 const analyzeDictation = (projectData) => {
     let used = false;
     let whisper = false;
+    let parakeet = false;
     for (const target of projectData.targets) {
         const blocks = target.blocks || {};
         for (const block of Object.values(blocks)) {
             if (!block || Array.isArray(block) || typeof block.opcode !== "string") continue;
             if (!block.opcode.startsWith(`${DICTATION_ID}_`)) continue;
             used = true;
-            if (block.opcode !== `${DICTATION_ID}_setLanguage`) continue;
-            const input = block.inputs && block.inputs.LANGUAGE;
-            const menu = input && input[0] === 1 && typeof input[1] === "string" && blocks[input[1]];
-            const field = menu && menu.fields && menu.fields.languages;
-            if (!field || String(field[0]).toLowerCase().trim() !== "english") whisper = true;
+            const menuValue = (inputName, fieldName) => {
+                const input = block.inputs && block.inputs[inputName];
+                const menu = input && input[0] === 1 && typeof input[1] === "string" && blocks[input[1]];
+                const field = menu && menu.fields && menu.fields[fieldName];
+                return field ? String(field[0]).toLowerCase().trim() : null;
+            };
+            if (block.opcode === `${DICTATION_ID}_setLanguage` && menuValue("LANGUAGE", "languages") !== "english") whisper = true;
+            if (block.opcode === `${DICTATION_ID}_setAccuracy` && menuValue("ACCURACY", "accuracies") !== "normal") parakeet = true;
         }
     }
-    return used ? { whisper } : null;
+    return used ? { whisper, parakeet } : null;
 };
 
 const analyzeScratch2 = (projectData) => {
