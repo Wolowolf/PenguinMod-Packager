@@ -636,7 +636,7 @@
       </label>
       <label class="option">
         <input type="checkbox" bind:checked={$options.removeDefaultFonts} />
-        Remove default fonts (Sans Serif, Pixel, etc)
+        Remove default fonts (Atkinson Hyperlegible, Lexend, OpenDyslexic)
       </label>
       </details>
   </div>

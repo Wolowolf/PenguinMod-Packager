@@ -8,26 +8,27 @@
  */
 
 /**
- * Remove all default fonts from the packaged project. Saves ~2.5mb
+ * Remove all default fonts from the packaged project. Saves ~0.6mb
  * @param {string} code, code that is generated for script.js
  * @returns {string}
  */
  export const removeDefaultFonts = (code) => {
-  const fontObjectInd = code.indexOf('{"Sans Serif":');
+  // Section 117: the font files are the modules after the font list that export a base 64 string
+  // starting like a TTF (AAEAAA) or OTF (T1RUTw) file; their data is emptied, so the fonts fail to load
+  const fontObjectInd = code.indexOf('{"Atkinson Hyperlegible Next":');
+  if (fontObjectInd === -1) return code;
   const fontObjectEnd = code.indexOf('}', fontObjectInd) + 1;
-  const fontObj = code.substring(fontObjectInd, fontObjectEnd);
+  const count = (code.substring(fontObjectInd, fontObjectEnd).match(/:/g) || []).length;
 
-  const regex = /"([^"]+)"\s*:|([A-Za-z0-9_$]+)\s*:/g;
-  let count = 0;
-  while (regex.exec(fontObj)) count++;
-
-  const search = code.substring(code.indexOf(',function(A,e)', fontObjectEnd), code.length);
-  let offset = fontObjectEnd;
-  for (var i = 0; i < count; i++) {
-    const fontStart = search.indexOf('{', offset) + (i === 0 ? 16: 0);
-    const prevEnd = search.indexOf('}', offset) + 1;
-    offset = search.indexOf('}', prevEnd);
-    code = code.replace(search.substring(fontStart + 1, offset), '');
+  const fontModule = /function\((\w+),\w+\)\{\1\.exports="(?=AAEAAA|T1RUTw)/g;
+  fontModule.lastIndex = fontObjectEnd;
+  for (let i = 0; i < count; i++) {
+    const match = fontModule.exec(code);
+    if (!match) break;
+    const dataStart = match.index + match[0].length;
+    const dataEnd = code.indexOf('"', dataStart);
+    code = code.slice(0, dataStart) + code.slice(dataEnd);
+    fontModule.lastIndex = dataStart;
   }
   return code;
 };
