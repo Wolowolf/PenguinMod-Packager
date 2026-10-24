@@ -56,7 +56,6 @@ const makeScaffolding = ({full}) => ({
       'text-encoding$': path.resolve(__dirname, 'src', 'scaffolding', 'text-encoding'),
       'htmlparser2$': path.resolve(__dirname, 'src', 'scaffolding', 'htmlparser2'),
       'scratch-translate-extension-languages$': path.resolve(__dirname, 'src', 'scaffolding', 'scratch-translate-extension-languages', 'languages.json'),
-      'scratch-parser$': path.resolve(__dirname, 'src', 'scaffolding', 'scratch-parser'),
       'scratch-render-fonts$': path.resolve(__dirname, 'src', 'scaffolding', 'render-fonts')
     }
   },

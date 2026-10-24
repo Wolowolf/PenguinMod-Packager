@@ -85,26 +85,6 @@ const analyzeDictation = (projectData) => {
     return used ? { whisper, parakeet } : null;
 };
 
-const analyzeScratch2 = (projectData) => {
-    const stageVariables = (projectData.variables || []).map(
-        ({ name, isPersistent }) => ({
-            name,
-            isCloud: isPersistent,
-        }),
-    );
-    // This may have some false positives, but that's okay.
-    const stringified = JSON.stringify(projectData);
-    const usesMusic =
-        stringified.includes("drum:duration:elapsed:from:") ||
-        stringified.includes("playDrum") ||
-        stringified.includes("noteOn:duration:elapsed:from:");
-    return {
-        ...unknownAnalysis(),
-        stageVariables,
-        usesMusic,
-    };
-};
-
 const analyzeScratch3 = (projectData) => {
     const stage = projectData.targets[0];
     if (!stage || !stage.isStage) {
@@ -204,13 +184,14 @@ export const downloadProject = async (
                 analysis = analyzeScratch3(projectData);
                 return projectData;
             }
-            if (type === "sb2") {
-                analysis = analyzeScratch2(projectData);
-            }
         },
     };
 
     const project = await downloadProjectFromBuffer(projectData, options);
+    // PenguinMod Desktop (section 143): Scratch 1.4 (.sb) and 2.0 (.sb2) projects are not supported.
+    if (project.type === "sb" || project.type === "sb2") {
+        throw new Error("Only Scratch 3 projects (.sb3, .pmp) can be packaged.");
+    }
     if (project.type !== "sb3" || project.type === "pm") {
         project.type = "blob";
     }
