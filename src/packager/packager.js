@@ -836,6 +836,8 @@ app.whenReady().then(() => {
     // ("pm-login-loopback" in the main script above).
     const preloadJS = `'use strict';
 const {contextBridge, ipcRenderer} = require('electron');
+// Starts the audio service while the page loads, so the game's first AudioContext doesn't wait for it (370 ms).
+navigator.mediaDevices?.enumerateDevices().catch(() => {});
 contextBridge.exposeInMainWorld('PMLogin', {
   loopback: (url) => ipcRenderer.invoke('pm-login-loopback', String(url)),
   cancel: () => ipcRenderer.invoke('pm-login-cancel')
