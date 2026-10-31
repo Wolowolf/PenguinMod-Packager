@@ -345,8 +345,7 @@
     resetOptions([
       'turbo',
       'closeWhenStopped',
-      'askBeforeClosing',
-      'noFrameLimit'
+      'askBeforeClosing'
     ]);
   }}
 >
@@ -365,10 +364,6 @@
     <label class="option">
       <input type="checkbox" bind:checked={$options.askBeforeClosing}>
       {$_('options.askBeforeClosing')}
-    </label>
-    <label class="option">
-      <input type="checkbox" bind:checked={$options.noFrameLimit}>
-      {$_('options.noFrameLimit')}
     </label>
   </div>
 </Section>

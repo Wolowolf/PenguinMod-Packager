@@ -98,10 +98,6 @@
       "string": "Ask before closing the tab or window",
       "context": "Option to show a confirmation prompt when someone tries to close the tab or window of the packaged project."
     },
-    "noFrameLimit": {
-      "string": "No frame limit (Windows app only): a project set to the screen's refresh rate or a high frame rate can go above the screen's limit; one at a fixed lower rate, like 30, stays there. The picture can tear, the computer gets hot and loud, a game whose speed depends on its frames runs too fast, and a very heavy game can even run slower.",
-      "context": "Option that removes the limit of the screen's refresh rate (vsync) in Windows apps."
-    },
     "autoplay": {
       "string": "Start project automatically instead of showing a big blue flag"
     },

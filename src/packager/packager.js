@@ -567,10 +567,7 @@ app.commandLine.appendSwitch('enable-features', 'SharedArrayBuffer');
 app.commandLine.appendSwitch('disable-renderer-backgrounding');
 // No clean-up just to give memory back: it paused a game that makes little garbage for 16-20 ms about 26 s after it started.
 app.commandLine.appendSwitch('js-flags', '--no-memory-reducer');
-${this.options.noFrameLimit ? `// Draw as fast as the computer can, not at the screen's refresh rate.
-app.commandLine.appendSwitch('disable-frame-rate-limit');
-app.commandLine.appendSwitch('disable-gpu-vsync');
-` : ''}
+
 if (isMac) {
   Menu.setApplicationMenu(Menu.buildFromTemplate([
     { role: 'appMenu' },
@@ -1773,7 +1770,6 @@ Packager.DEFAULT_OPTIONS = () => ({
   username: 'player####',
   closeWhenStopped: false,
   askBeforeClosing: false,
-  noFrameLimit: false,
   projectId: '',
   custom: {
     css: '',
