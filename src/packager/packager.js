@@ -563,6 +563,8 @@ const isLinux = process.platform === 'linux';
 app.commandLine.appendSwitch('force_high_performance_gpu');
 // SharedArrayBuffer without cross-origin isolation: Text To Speech runs on several threads.
 app.commandLine.appendSwitch('enable-features', 'SharedArrayBuffer');
+// The game keeps full speed when the screen turns off: Windows then counts the window as covered, and Chromium would treat the page as in the background.
+app.commandLine.appendSwitch('disable-renderer-backgrounding');
 
 if (isMac) {
   Menu.setApplicationMenu(Menu.buildFromTemplate([
