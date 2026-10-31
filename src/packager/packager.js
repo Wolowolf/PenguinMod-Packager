@@ -565,6 +565,8 @@ app.commandLine.appendSwitch('force_high_performance_gpu');
 app.commandLine.appendSwitch('enable-features', 'SharedArrayBuffer');
 // The game keeps full speed when the screen turns off: Windows then counts the window as covered, and Chromium would treat the page as in the background.
 app.commandLine.appendSwitch('disable-renderer-backgrounding');
+// No clean-up just to give memory back: it paused a game that makes little garbage for 16-20 ms about 26 s after it started.
+app.commandLine.appendSwitch('js-flags', '--no-memory-reducer');
 
 if (isMac) {
   Menu.setApplicationMenu(Menu.buildFromTemplate([
