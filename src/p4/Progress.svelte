@@ -14,15 +14,13 @@
     height: 10px;
     border: 1px solid currentColor;
     margin-bottom: 4px;
-    background: black;
-  }
-  :global([theme="dark"]) .bar-outer {
     background: transparent;
   }
   .bar-inner {
     height: 100%;
     width: 0;
-    background: white;
+    /* section 223: the ink of the card it is on */
+    background: currentColor;
   }
   .text {
     font-style: italic;

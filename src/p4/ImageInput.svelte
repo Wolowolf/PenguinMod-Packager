@@ -62,7 +62,7 @@
 <style>
   .container {
     background: transparent;
-    color: #555;
+    color: var(--text-dim-on-panel, #555);
     width: 100%;
     box-sizing: border-box;
     border: 3px dashed currentColor;
@@ -80,17 +80,17 @@
     padding: 4px;
   }
   :global([theme="dark"]) .container {
-    color: #aaa;
+    color: var(--text-dim-on-panel, #aaa);
   }
   .dropping,
   .container:focus-visible,
   .container:active {
-    color: rgb(79, 123, 211);
+    color: var(--accent-on-panel, rgb(79, 123, 211));
   }
   :global([theme="dark"]) .dropping,
   :global([theme="dark"]) .container:focus-visible,
   :global([theme="dark"]) .container:active {
-    color: rgb(178, 195, 228);
+    color: var(--accent-on-panel, rgb(178, 195, 228));
   }
   .placeholder {
     font-size: 1.5em;

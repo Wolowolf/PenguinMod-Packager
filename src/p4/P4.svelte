@@ -25,7 +25,38 @@
       systemTheme = darkMedia.matches ? 'dark' : 'light';
     });
   }
-  $: document.documentElement.setAttribute('theme', $theme === 'system' ? systemTheme : $theme);
+  // PenguinMod Desktop (section 223): this window takes the editor's theme colours and light / dark
+  // choice, which the editor saves in localStorage (its src/lib/pm-theme-colors.js); its variables are
+  // used by the styles below, the old colours stay as fallbacks for a packager opened without them
+  const EDITOR_THEME_KEY = 'pm:theme-vars';
+  const readEditorTheme = () => {
+    try {
+      const value = JSON.parse(localStorage.getItem(EDITOR_THEME_KEY));
+      if (value && (value.mode === 'light' || value.mode === 'dark') && value.vars && typeof value.vars === 'object') {
+        return value;
+      }
+    } catch (e) {
+      // ignore
+    }
+    return null;
+  };
+  let editorTheme = readEditorTheme();
+  window.addEventListener('storage', (e) => {
+    if (e.key === EDITOR_THEME_KEY || e.key === null) editorTheme = readEditorTheme();
+  });
+  const editorThemeStyle = document.createElement('style');
+  document.head.appendChild(editorThemeStyle);
+  const editorThemeCSS = (value) => {
+    if (!value) return '';
+    const lines = Object.keys(value.vars)
+      .filter((name) => /^--[a-z0-9-]+$/.test(name) && typeof value.vars[name] === 'string' &&
+        value.vars[name] !== '' && !/[;{}<>]/.test(value.vars[name]))
+      .map((name) => `  ${name}: ${value.vars[name]};`);
+    return `:root {${lines.join('')}}`;
+  };
+  $: editorThemeStyle.textContent = editorThemeCSS(editorTheme);
+  $: document.documentElement.setAttribute('theme', editorTheme ? editorTheme.mode :
+    ($theme === 'system' ? systemTheme : $theme));
 
   let modalVisible = false;
 
@@ -45,24 +76,30 @@
 </script>
 
 <style>
+  /* section 223: the page is the editor's frame, cards are panels, fields are the workspace */
   :root {
     font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-    background: white;
-    color: black;
+    background: var(--ui-primary, white);
+    color: var(--text-on-background, black);
+    accent-color: var(--ui-accent, auto);
+    scrollbar-color: var(--ui-edge, auto) var(--ui-primary, auto);
   }
   :global([theme="dark"]) {
-    background: #111;
-    color: #eee;
+    background: var(--ui-primary, #111);
+    color: var(--text-on-background, #eee);
     color-scheme: dark;
   }
   :global(a) {
-    color: blue;
+    color: var(--accent-on-panel, blue);
   }
   :global([theme="dark"] a) {
-    color: #56b2ff;
+    color: var(--accent-on-panel, #56b2ff);
+  }
+  :global(footer a) {
+    color: var(--accent-on-background, inherit);
   }
   :global(a:active) {
-    color: red;
+    color: var(--stop-on-panel, red);
   }
   :global(input[type="text"]),
   :global(input[type="number"]),
@@ -73,24 +110,24 @@
   :global(input[type="number"]),
   :global(textarea),
   :global(.is-not-safari select) {
-    background-color: white;
-    color: black;
-    border: 1px solid rgb(160, 160, 160);
+    background-color: var(--ui-workspace, white);
+    color: var(--text-on-workspace, black);
+    border: 1px solid var(--ui-edge, rgb(160, 160, 160));
     border-radius: 2px;
   }
   :global(.is-not-safari select:hover) {
-    border-color: rgb(30, 30, 30);
+    border-color: var(--text-dim-on-workspace, rgb(30, 30, 30));
   }
   :global([theme="dark"] input[type="text"]),
   :global([theme="dark"] input[type="number"]),
   :global([theme="dark"] textarea),
   :global([theme="dark"] .is-not-safari select) {
-    background-color: #333;
-    color: white;
-    border-color: #888;
+    background-color: var(--ui-workspace, #333);
+    color: var(--text-on-workspace, white);
+    border-color: var(--ui-edge, #888);
   }
   :global([theme="dark"] .is-not-safari select:hover) {
-    border-color: #bbb;
+    border-color: var(--text-dim-on-workspace, #bbb);
   }
   :global(p), :global(h1), :global(h2), :global(h3) {
     margin: 12px 0;
@@ -191,7 +228,10 @@
       <!-- PenguinMod Desktop (Section 29): no Feedback (Discord), Source code (GitHub) or Donate links. -->
     </div>
     <div>
-      <SelectTheme />
+      {#if !editorTheme}
+        <!-- section 223: the editor's theme decides when there is one -->
+        <SelectTheme />
+      {/if}
     </div>
     <div>
       <SelectLocale />

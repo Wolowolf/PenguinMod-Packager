@@ -18,8 +18,8 @@
     width: 100%;
     height: 100%;
     z-index: 20;
-    background: rgba(255, 255, 255, 0.8);
-    color: black;
+    background: color-mix(in srgb, var(--ui-secondary, white) 85%, transparent);
+    color: var(--text-on-panel, black);
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -28,8 +28,8 @@
     user-select: none;
   }
   :global([theme="dark"]) .outer {
-    background: rgba(0, 0, 0, 0.8);
-    color: white;
+    background: color-mix(in srgb, var(--ui-secondary, black) 85%, transparent);
+    color: var(--text-on-panel, white);
   }
   .inner {
     max-width: 480px;

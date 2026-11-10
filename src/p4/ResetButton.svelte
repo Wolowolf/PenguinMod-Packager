@@ -23,32 +23,28 @@
     cursor: pointer;
     border-radius: 4px;
   }
+  /* section 223: the card's hover tint and ink */
   button:hover {
-    background: rgba(0, 0, 0, 0.15);
+    background: var(--hover-on-panel, rgba(127, 127, 127, 0.2));
   }
   button:active {
-    background: rgba(0, 0, 0, 0.3);
+    background: color-mix(in srgb, var(--text-on-panel, #7f7f7f) 25%, transparent);
   }
-  :global([theme="dark"]) button:hover {
-    background: rgba(255, 255, 255, 0.15);
-  }
-  :global([theme="dark"]) button:active {
-    background: rgba(255, 255, 255, 0.3);
-  }
-  img {
+  .icon {
+    display: block;
     width: 100%;
     height: 100%;
-  }
-  :global([theme="dark"]) img {
-    filter: invert(100%);
+    background-color: var(--text-on-panel, currentColor);
+    mask: var(--icon) center / 100% no-repeat;
   }
 </style>
 
 <button on:click={click}>
-  <img
-    src={icon}
-    draggable={false}
-    alt={$_('reset.reset')}
+  <span
+    class="icon"
+    style:--icon={`url("${icon}")`}
+    role="img"
+    aria-label={$_('reset.reset')}
     title={$_('reset.reset')}
-  >
+  ></span>
 </button>

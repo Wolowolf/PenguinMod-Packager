@@ -7,7 +7,8 @@
   const getColor = () => {
     if (secondary) return '#0FBD8C';
     if (dangerous) return '#FF8C1A';
-    return ACCENT_COLOR;
+    // section 223: the main action is the editor's accent, with its ink
+    return `var(--ui-accent, ${ACCENT_COLOR})`;
   };
 </script>
 
@@ -48,7 +49,7 @@
   }
 </style>
 
-<button on:click style:background-color={getColor()}>
+<button on:click style:background-color={getColor()} style:color={secondary || dangerous ? null : 'var(--text-on-accent, white)'}>
   <div class="dimmer"></div>
   <div class="text">{text}</div>
 </button>

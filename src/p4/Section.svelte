@@ -13,14 +13,15 @@
     max-width: 625px;
     margin: auto;
     border-radius: 0.3em;
-    background-color: #fff;
+    background-color: var(--ui-secondary, #fff);
+    color: var(--text-on-panel, inherit);
     padding: 1em;
     margin-top: 1em;
     margin-bottom: 1em;
     box-shadow: 0 2px 0.5em 0.1em rgba(0, 0, 0, 0.2);
   }
   :global([theme="dark"]) .card {
-    background: #222;
+    background: var(--ui-secondary, #222);
   }
   .caption {
     font-style: italic;

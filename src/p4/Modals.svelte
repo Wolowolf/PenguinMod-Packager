@@ -70,7 +70,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    background-color: rgba(0, 0, 0, 0.75);
+    background-color: var(--ui-modal-overlay, rgba(0, 0, 0, 0.75));
     word-break: break-word;
   }
   .technical {
