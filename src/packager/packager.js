@@ -701,14 +701,12 @@ const openLink = (url) => {
   }
 };
 
-// Game login (Google Auth / Discord Auth extensions): opens a Google or Discord login page in the
+// Game login (Google Sign-in extension): opens a Google login page in the
 // player's own browser and waits on this PC (http://127.0.0.1) for the page the login sends the
 // player back to (OAuth "loopback" redirect). A redirect_uri without a port gets a free one.
 // Answers {redirectUri, params} or {error}. Used through window.PMLogin (electron-preload.js).
 const LOGIN_PAGES = [
   {host: 'accounts.google.com', path: '/o/oauth2/'},
-  {host: 'discord.com', path: '/oauth2/authorize'},
-  {host: 'discord.com', path: '/api/oauth2/authorize'}
 ];
 let stopLogin = null;
 ipcMain.handle('pm-login-loopback', (event, authUrl) => new Promise((resolve) => {
@@ -722,7 +720,7 @@ ipcMain.handle('pm-login-loopback', (event, authUrl) => new Promise((resolve) =>
     return;
   }
   if (auth.protocol !== 'https:' || !LOGIN_PAGES.some((p) => auth.host === p.host && auth.pathname.startsWith(p.path))) {
-    resolve({error: 'not a Google or Discord login page'});
+    resolve({error: 'not a Google login page'});
     return;
   }
   if (redirect.protocol !== 'http:' || !['127.0.0.1', 'localhost', '[::1]'].includes(redirect.hostname)) {
@@ -832,7 +830,7 @@ app.whenReady().then(() => {
 `;
     zip.file(`${resourcesPrefix}${electronMainName}`, mainJS);
 
-    // For the Google Auth / Discord Auth extensions: log in through the player's own browser
+    // For the Google Sign-in extension: log in through the player's own browser
     // ("pm-login-loopback" in the main script above).
     const preloadJS = `'use strict';
 const {contextBridge, ipcRenderer} = require('electron');
