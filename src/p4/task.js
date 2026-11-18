@@ -1,4 +1,4 @@
-import {EventTarget} from '../common/event-target';
+import {EventTarget} from 'scratch-vm/src/web-shared/event-target';
 import {AbortError} from '../common/errors';
 import {progress, error, currentTask} from './stores';
 

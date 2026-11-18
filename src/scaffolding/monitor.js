@@ -2,7 +2,7 @@ import ContextMenu from './context-menu';
 import DropArea from './drop-area';
 import styles from './style.css';
 import {readAsText} from '../common/readers';
-import downloadBlob from './download';
+import downloadBlob from 'scratch-vm/src/web-shared/download-blob';
 
 class Monitor {
   constructor (parent, monitor) {

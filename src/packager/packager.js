@@ -1,4 +1,4 @@
-import {EventTarget, CustomEvent} from '../common/event-target';
+import {EventTarget, CustomEvent} from 'scratch-vm/src/web-shared/event-target';
 import sha256 from './sha256';
 import escapeXML from '../common/escape-xml';
 import largeAssets from './large-assets';
