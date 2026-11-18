@@ -9,11 +9,19 @@ import {encode} from './base85';
 import {parsePlist, generatePlist} from './plist';
 import {APP_NAME, WEBSITE, COPYRIGHT_NOTICE, ACCENT_COLOR} from './brand';
 import {OutdatedPackagerError} from '../common/errors';
-import {darken} from './colors';
+import Color from 'scratch-vm/src/util/color';
 import {Adapter} from './adapter';
 import {removeDefaultFonts, optiCompress} from './compressor';
 import encodeBigString from './encode-big-string';
 import movedGalleryExtensions from 'scratch-vm/src/extension-support/moved-gallery-extensions.json';
+
+// Desktop fork (section 297): the list monitor's darker edge colour, made with the VM's shared colour toolkit
+// (replaces packager/colors.js; the colour picker always gives #rrggbb). hsvToRgb clamps the value.
+const darken = (hex) => {
+  const hsv = Color.rgbToHsv(Color.hexToRgb(hex));
+  hsv.v -= 0.1;
+  return Color.rgbToHex(Color.hsvToRgb(hsv));
+};
 
 const PROGRESS_LOADED_SCRIPTS = 0.1;
 
