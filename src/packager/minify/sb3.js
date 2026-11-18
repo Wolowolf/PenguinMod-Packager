@@ -1,60 +1,6 @@
-// TODO: Extract this and TurboWarp/scratch-vm's compression to a shared module
-
-// We don't generate new IDs using numbers at this time because their enumeration
-// order can affect script execution order as they always come first.
-// https://tc39.es/ecma262/#sec-ordinaryownpropertykeys
-const SOUP = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ!#%()*+,-./:;=?@[]^_`{|}~';
-const generateId = i => {
-  let str = '';
-  while (i >= 0) {
-    str = SOUP[i % SOUP.length] + str;
-    i = Math.floor(i / SOUP.length) - 1;
-  }
-  return str;
-};
-
-class Pool {
-  constructor() {
-    this.generatedIds = new Map();
-    this.references = new Map();
-    this.skippedIds = new Set();
-    // IDs in Object.keys(vm.runtime.monitorBlocks._blocks) already have meaning, so make sure to skip those
-    // We don't bother listing many here because most would take more than ten million items to be used
-    this.skippedIds.add('of');
-  }
-  skip (id) {
-    this.skippedIds.add(id);
-  }
-  addReference(id) {
-    const currentCount = this.references.get(id) || 0;
-    this.references.set(id, currentCount + 1);
-  }
-  generateNewIds() {
-    const entries = Array.from(this.references.entries());
-    // The most used original IDs should get the shortest new IDs.
-    entries.sort((a, b) => b[1] - a[1]);
-
-    let i = 0;
-    for (const entry of entries) {
-      const oldId = entry[0];
-
-      let newId = generateId(i);
-      while (this.skippedIds.has(newId)) {
-        i++;
-        newId = generateId(i);
-      }
-
-      this.generatedIds.set(oldId, newId);
-      i++;
-    }
-  }
-  getNewId(originalId) {
-    if (this.generatedIds.has(originalId)) {
-      return this.generatedIds.get(originalId);
-    }
-    return originalId;
-  }
-}
+// Desktop fork (section 306): the id pool (shortest new ids for the most used ids) is the VM's
+import compress from 'scratch-vm/src/serialization/tw-compress-sb3';
+const {Pool} = compress;
 
 const optimizeSb3Json = (projectData) => {
   // Note: we modify projectData in-place
