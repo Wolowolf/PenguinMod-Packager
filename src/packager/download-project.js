@@ -190,7 +190,7 @@ export const downloadProject = async (
     const project = await downloadProjectFromBuffer(projectData, options);
     // PenguinMod Desktop (section 143): Scratch 1.4 (.sb) and 2.0 (.sb2) projects are not supported.
     if (project.type === "sb" || project.type === "sb2") {
-        throw new Error("Only Scratch 3 projects (.sb3, .pmp) can be packaged.");
+        throw new Error("Only .2DC projects can be packaged.");
     }
     if (project.type !== "sb3" || project.type === "pm") {
         project.type = "blob";
