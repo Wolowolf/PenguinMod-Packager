@@ -18,7 +18,7 @@
     padding: 1em;
     margin-top: 1em;
     margin-bottom: 1em;
-    box-shadow: 0 2px 0.5em 0.1em rgba(0, 0, 0, 0.2);
+    border: 1px solid var(--ui-edge, #ccc);
   }
   :global([theme="dark"]) .card {
     background: var(--ui-secondary, #222);
